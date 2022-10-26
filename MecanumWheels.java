@@ -49,7 +49,7 @@ public class MecanumWheels extends LinearOpMode {
         // Put loop blocks here.
         FB_translation = -gamepad1.left_stick_y;
         LR_translation = gamepad1.left_stick_x;
-        arm4.setPower(gamepad2.right_stick_y);
+        arm4.setPower(-gamepad2.right_stick_y);
         rotation = gamepad1.right_stick_x;
         
         if (gamepad2.dpad_up){
