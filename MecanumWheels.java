@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "MecanumWheels (Blocks to Java)", group = "")
 public class MecanumWheels extends LinearOpMode {
+  public static final double REAR_RATIO = 3.0 / 8.0;
 
   private DcMotor FL;
   private DcMotor BL;
@@ -100,6 +101,10 @@ public class MecanumWheels extends LinearOpMode {
     FR_power -= rotation;
     BL_power += rotation;
     BR_power -= rotation;
+
+    BL *= REAR_RATIO;
+    BR *= REAR_RATIO;
+
     FL.setPower(FL_power);
     BL.setPower(BL_power);
     FR.setPower(FR_power);
