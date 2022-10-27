@@ -10,8 +10,10 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Controls:
  * gamepad1 left_stick - translational motion
  * gamepad1 right_stick_x - rotational motion
- * gamepad2 right_stick_y - arm up/down
- * gamepad2 dpad up/down - claw open/close
+ * gamepad1 right_trigger - move arm up
+ * gamepad1 left_trigger - move arm down
+ * gamepad1 right_bumper - open claw
+ * gamepad1 left_bumper - close claw
  */
 
 @TeleOp(name = "MecanumWheels (Blocks to Java)", group = "")
@@ -35,6 +37,7 @@ public class MecanumWheels extends LinearOpMode {
     double LR_translation;
     double rotation;
     double servo_spin;
+    double arm_power;
     double claw_position = 0;
 
 
@@ -58,12 +61,21 @@ public class MecanumWheels extends LinearOpMode {
         // Put loop blocks here.
         FB_translation = -gamepad1.left_stick_y;
         LR_translation = gamepad1.left_stick_x;
-        arm4.setPower(-gamepad2.right_stick_y);
         rotation = gamepad1.right_stick_x;
         
-        if (gamepad2.dpad_up){
+        if (gamepad1.right_trigger) {
+          arm_power = 0.5;
+        } else if (gamepad1.left_trigger) {
+          arm_power = -0.5;
+        } else {
+          arm_power = 0;
+        }
+
+        arm4.setPower(arm_power);
+
+        if (gamepad1.right_bumper){
           servo_spin = 0.5;
-        } else if (gamepad2.dpad_down){
+        } else if (gamepad1.left_bumper){
           servo_spin = -0.5; 
         } else {
           servo_spin = 0.0;
