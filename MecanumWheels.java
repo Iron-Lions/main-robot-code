@@ -6,6 +6,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+/**
+ * Controls:
+ * gamepad1 left_stick - translational motion
+ * gamepad1 right_stick_x - rotational motion
+ * gamepad2 right_stick_y - arm up/down
+ * gamepad2 dpad up/down - claw open/close
+ */
+
 @TeleOp(name = "MecanumWheels (Blocks to Java)", group = "")
 public class MecanumWheels extends LinearOpMode {
 
