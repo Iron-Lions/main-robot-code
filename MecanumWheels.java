@@ -63,9 +63,9 @@ public class MecanumWheels extends LinearOpMode {
         LR_translation = gamepad1.left_stick_x;
         rotation = gamepad1.right_stick_x;
         
-        if (gamepad1.right_trigger) {
+        if (gamepad1.right_trigger > 0.5) {
           arm_power = 0.5;
-        } else if (gamepad1.left_trigger) {
+        } else if (gamepad1.left_trigger > 0.5) {
           arm_power = -0.5;
         } else {
           arm_power = 0;
