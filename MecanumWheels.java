@@ -114,8 +114,8 @@ public class MecanumWheels extends LinearOpMode {
     BL_power += rotation;
     BR_power -= rotation;
 
-    BL *= REAR_RATIO;
-    BR *= REAR_RATIO;
+    BL_power *= REAR_RATIO;
+    BR_power *= REAR_RATIO;
 
     FL.setPower(FL_power);
     BL.setPower(BL_power);
