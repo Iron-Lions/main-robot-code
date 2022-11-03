@@ -49,8 +49,8 @@ public class MecanumWheels extends LinearOpMode {
     claw_servo = hardwareMap.servo.get("claw_servo");
 
     // Put initialization blocks here.
-    FR.setDirection(DcMotorSimple.Direction.FORWARD);
-    BR.setDirection(DcMotorSimple.Direction.FORWARD);
+    FL.setDirection(DcMotorSimple.Direction.FORWARD);
+    BL.setDirection(DcMotorSimple.Direction.FORWARD);
     FR.setDirection(DcMotorSimple.Direction.REVERSE);
     BR.setDirection(DcMotorSimple.Direction.REVERSE);
     
@@ -114,8 +114,13 @@ public class MecanumWheels extends LinearOpMode {
     BL_power += rotation;
     BR_power -= rotation;
 
+    // Account for the gearing on the back wheels:
     BL_power *= REAR_RATIO;
     BR_power *= REAR_RATIO;
+
+    // Account for the gearing on the front wheels:
+    FR_power *= -1.0;
+    BR_power *= -1.0;
 
     FL.setPower(FL_power);
     BL.setPower(BL_power);
