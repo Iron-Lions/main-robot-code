@@ -84,7 +84,7 @@ public class MecanumWheels extends LinearOpMode {
 
         if (gamepad1.x) {
           REAR_RATIO += 0.0001;
-        } else if (gamepad.y) {
+        } else if (gamepad1.y) {
           REAR_RATIO -= 0.0001;
         }
         
@@ -130,7 +130,7 @@ public class MecanumWheels extends LinearOpMode {
 
     // Account for the gearing on the front wheels:
     FR_power *= -1.0;
-    BR_power *= -1.0;
+    FL_power *= -1.0;
 
     FL.setPower(FL_power);
     BL.setPower(BL_power);
