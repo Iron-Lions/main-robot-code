@@ -70,7 +70,7 @@ public class MecanumWheels extends LinearOpMode {
         // } else {
         //   arm_power = 0;
         // }
-        arm_power = gamepad1.right_trigger - gamepad1.left_trigger;
+        arm_power = (gamepad1.right_trigger - gamepad1.left_trigger) *= 100;
 
         arm4.setPower(arm_power);
 
