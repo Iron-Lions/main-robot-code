@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "MecanumWheels (Blocks to Java)", group = "")
 public class MecanumWheels extends LinearOpMode {
-  public static final double REAR_RATIO = 3.0 / 8.0;
+  public static /*final*/ double REAR_RATIO = 3.0 / 8.0;
 
   private DcMotor FL;
   private DcMotor BL;
@@ -81,6 +81,12 @@ public class MecanumWheels extends LinearOpMode {
         } else {
           servo_spin = 0.0;
         }
+
+        if (gamepad1.x) {
+          REAR_RATIO += 0.0001;
+        } else if (gamepad.y) {
+          REAR_RATIO -= 0.0001;
+        }
         
         mecanumMoveBot(FB_translation, LR_translation, rotation);
         
@@ -95,6 +101,7 @@ public class MecanumWheels extends LinearOpMode {
         telemetry.addData("Arm Power", arm_power);
         telemetry.addData("G1 Right Trigger", gamepad1.right_trigger);
         telemetry.addData("G1 Left Trigger", gamepad1.left_trigger);
+        telemetry.addData("Gear ratio", REAR_RATIO);
         telemetry.update();
       }
     }
