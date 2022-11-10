@@ -63,13 +63,14 @@ public class MecanumWheels extends LinearOpMode {
         LR_translation = gamepad1.left_stick_x;
         rotation = gamepad1.right_stick_x;
         
-        if (gamepad1.right_trigger > 0.5) {
-          arm_power = 0.5;
-        } else if (gamepad1.left_trigger > 0.5) {
-          arm_power = -0.5;
-        } else {
-          arm_power = 0;
-        }
+        // if (gamepad1.right_trigger > 0.5) {
+        //   arm_power = 0.5;
+        // } else if (gamepad1.left_trigger > 0.5) {
+        //   arm_power = -0.5;
+        // } else {
+        //   arm_power = 0;
+        // }
+        arm_power = gamepad1.right_trigger - gamepad1.left_trigger;
 
         arm4.setPower(arm_power);
 
@@ -92,8 +93,8 @@ public class MecanumWheels extends LinearOpMode {
         telemetry.addData("rotation", rotation);
         telemetry.addData("Servo_rotation", servo_spin);
         telemetry.addData("Arm Power", arm_power);
-        telemetry.addData("G1 Right Bumper", gamepad1.right_bumper);
-        telemetry.addData("G1 Left Bumper", gamepad1.left_bumper);
+        telemetry.addData("G1 Right Trigger", gamepad1.right_trigger);
+        telemetry.addData("G1 Left Trigger", gamepad1.left_trigger);
         telemetry.update();
       }
     }
