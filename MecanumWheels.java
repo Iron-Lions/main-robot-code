@@ -38,7 +38,7 @@ public class MecanumWheels extends LinearOpMode {
     double rotation;
     double servo_spin;
     double arm_power;
-    double claw_position = 0;
+    double claw_position = 1;
 
 
     FL = hardwareMap.dcMotor.get("FL");
