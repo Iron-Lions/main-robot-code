@@ -91,7 +91,9 @@ public class MecanumWheels extends LinearOpMode {
         telemetry.addData("LR_translation", LR_translation);
         telemetry.addData("rotation", rotation);
         telemetry.addData("Servo_rotation", servo_spin);
-        telemetry.addData("Arm Power", gamepad2.right_stick_y);
+        telemetry.addData("Arm Power", arm_power);
+        telemetry.addData("G1 Right Bumper", gamepad1.right_bumper);
+        telemetry.addData("G1 Left Bumper", gamepad1.left_bumper);
         telemetry.update();
       }
     }
