@@ -134,4 +134,72 @@ public class MecanumWheels extends LinearOpMode {
     
   }
 }
+
+@Autonomous
+public class FreightFenzy_REDAuton1 extends LinearOpMode {
+
+  private DcMotor FL;
+  private DcMotor FR;
+  private DcMotor BL;
+  private DcMotor BR;
+  private DcMotor arm4;
+  private Servo claw_servo;
   
+  //Convert from the counts per revolution of the encoder to counts per inch
+  static final double HD_COUNTS_PER_REV = 28;
+  static final double DRIVE_GEAR_REDUCTION = 20.15293;
+  static final double WHEEL_CIRCUMFERENCE_MM = 90 * Math.PI;
+  static final double DRIVE_COUNTS_PER_MM = (HD_COUNTS_PER_REV * DRIVE_GEAR_REDUCTION) / WHEEL_CIRCUMFERENCE_MM;
+  static final double DRIVE_COUNTS_PER_IN = DRIVE_COUNTS_PER_MM * 25.4;
+    
+  @Override
+  public void runOpMode() {
+
+    FR = hardwareMap.get(DcMotor.class, "FrontRightDrive");
+    FL = hardwareMap.get(DcMotor.class, "FrontLeftDrive");
+    BR = hardwareMap.get(DcMotor.class, "BackRightDrive");
+    BL = hardwareMap.get(DcMotor.class, "BackLeftDrive");
+    arm4 = hardwareMap.get(DcMotor.class, "Arm");
+    claw_servo = hardwareMap.get(DcMotor.class, "Intake");
+
+   // reverse left drive motor direciton
+    LeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+    
+    waitForStart();
+    if (opModeIsActive()) {
+      // Create target positions
+      frontRightTarget = RightDrive.getCurrentPosition() + (int)(30 * DRIVE_COUNTS_PER_IN);
+      frontLeftTarget = LeftDrive.getCurrentPosition() + (int)(15 * DRIVE_COUNTS_PER_IN);
+      backRightTarget = RightDrive.getCurrentPosition() + (int)(30 * DRIVE_COUNTS_PER_IN);
+      backLeftTarget = LeftDrive.getCurrentPosition() + (int)(15 * DRIVE_COUNTS_PER_IN);
+      
+      // set target position
+      frontLeftDrive.setTargetPosition(leftTarget);
+      frontRightDrive.setTargetPosition(rightTarget);
+      backLeftDrive.setTargetPosition(leftTarget);
+      backRightDrive.setTargetPosition(rightTarget);
+      
+      //switch to run to position mode
+      frontLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      frontRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      backLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      backRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      
+      //run to position at the desiginated power
+      frontLeftDrive.setPower(0.7);
+      frontRightDrive.setPower(0.7);
+      backLeftDrive.setPower(0.7);
+      backRightDrive.setPower(0.7);
+
+      // wait until both motors are no longer busy running to position
+      while (opModeIsActive() && (frontLeftDrive.isBusy() || frontRightDrive.isBusy() || backLeftDrive.isBusy() || backRightDrive.isBusy())) {
+      }
+      
+      // set motor power back to 0 
+      frontLeftDrive.setPower(0);
+      frontRightDrive.setPower(0);
+      backLeftDrive.setPower(0);
+      backRightDrive.setPower(0);
+        }
+     }
+ }
