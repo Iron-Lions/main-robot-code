@@ -54,9 +54,9 @@ public class MecanumWheels extends LinearOpMode {
     claw_servo = hardwareMap.servo.get("claw_servo");
 
     // Put initialization blocks here.
-    FL.setDirection(DcMotorSimple.Direction.REVERSE);
+    FL.setDirection(DcMotorSimple.Direction.FORWARD);
     BL.setDirection(DcMotorSimple.Direction.FORWARD);
-    FR.setDirection(DcMotorSimple.Direction.REVERSE);
+    FR.setDirection(DcMotorSimple.Direction.FORWARD);
     BR.setDirection(DcMotorSimple.Direction.REVERSE);
 
     waitForStart();
@@ -69,7 +69,6 @@ public class MecanumWheels extends LinearOpMode {
         rotation = gamepad1.right_stick_x;
 
         arm_power = gamepad1.right_trigger - gamepad1.left_trigger;
-        // arm_power *= 100;
 
         arm4.setPower(arm_power);
 
@@ -108,7 +107,7 @@ public class MecanumWheels extends LinearOpMode {
   }
 
   /**
-   * Describe this function...
+   * Move robot using Mechanum wheels, given translation and rotation.
    */
   private void mecanumMoveBot(double FB_translation, double LR_translation, double rotation) {
     double FL_power = FB_translation;
@@ -127,10 +126,6 @@ public class MecanumWheels extends LinearOpMode {
     // Account for the gearing on the back wheels:
     BL_power *= REAR_RATIO;
     BR_power *= REAR_RATIO;
-
-    // Account for the gearing on the front wheels:
-    FR_power *= -1.0;
-    FL_power *= -1.0;
 
     FL.setPower(FL_power);
     BL.setPower(BL_power);
