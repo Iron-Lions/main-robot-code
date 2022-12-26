@@ -25,6 +25,10 @@ public class MecanumWheels extends LinearOpMode {
   public static final double SERVO_CLOSED = 1;
   public static final double SERVO_OPEN = 0.804;
 
+  private static final Gamepad DRIVE_GAMEPAD = gamepad1;
+  private static final Gamepad ARM_GAMEPAD = gamepad2;
+  private static final Gamepad CLAW_GAMEPAD = gamepad2;
+
   private DcMotor FL;
   private DcMotor BL;
   private DcMotor FR;
@@ -64,27 +68,21 @@ public class MecanumWheels extends LinearOpMode {
       // Put run blocks here.
       while (opModeIsActive()) {
         // Put loop blocks here.
-        FB_translation = -gamepad1.left_stick_y;
-        LR_translation = gamepad1.left_stick_x;
-        rotation = gamepad1.right_stick_x;
+        FB_translation = -DRIVE_GAMEPAD.left_stick_y;
+        LR_translation = DRIVE_GAMEPAD.left_stick_x;
+        rotation = DRIVE_GAMEPAD.right_stick_x;
 
-        arm_power = gamepad1.right_trigger - gamepad1.left_trigger;
+        arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
 
         arm4.setPower(arm_power);
 
-        if (gamepad1.right_bumper){
+        if (CLAW_GAMEPAD.right_bumper){
           servo_spin = -1;
-        } else if (gamepad1.left_bumper){
+        } else if (CLAW_GAMEPAD.left_bumper){
           servo_spin = 1;
         } else {
           servo_spin = 0;
         }
-
-        // if (gamepad1.x) {
-        //   REAR_RATIO += 0.0001;
-        // } else if (gamepad1.y) {
-        //   REAR_RATIO -= 0.0001;
-        // }
 
         mecanumMoveBot(FB_translation, LR_translation, rotation);
 
