@@ -74,11 +74,11 @@ public class MecanumWheels extends LinearOpMode {
         arm4.setPower(arm_power);
 
         if (gamepad1.right_bumper){
-          servo_spin = 1;
-        } else if (gamepad1.left_bumper){
           servo_spin = -1;
+        } else if (gamepad1.left_bumper){
+          servo_spin = 1;
         } else {
-          servo_spin = 0.0;
+          servo_spin = 0;
         }
 
         // if (gamepad1.x) {
