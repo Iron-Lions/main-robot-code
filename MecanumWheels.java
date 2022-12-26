@@ -42,7 +42,7 @@ public class MecanumWheels extends LinearOpMode {
     Gamepad DRIVE_GAMEPAD = gamepad1;
     Gamepad ARM_GAMEPAD = gamepad2;
     Gamepad CLAW_GAMEPAD = gamepad2;
-    
+
     double FB_translation;
     double LR_translation;
     double rotation;
@@ -97,8 +97,6 @@ public class MecanumWheels extends LinearOpMode {
         telemetry.addData("Servo_rotation", servo_spin);
         telemetry.addData("claw_position", claw_position);
         telemetry.addData("Arm Power", arm_power);
-        telemetry.addData("G1 Right Trigger", gamepad1.right_trigger);
-        telemetry.addData("G1 Left Trigger", gamepad1.left_trigger);
         telemetry.addData("Gear ratio", REAR_RATIO);
         telemetry.update();
       }
