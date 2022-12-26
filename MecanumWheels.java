@@ -23,7 +23,7 @@ public class MecanumWheels extends LinearOpMode {
 
   // Servo is more positive when more closed and more negative when more open
   public static final double SERVO_CLOSED = 1;
-  public static final double SERVO_OPEN = 0.804;
+  public static final double SERVO_OPEN = 0.5;
 
 
   private DcMotor FL;
