@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name = "MecanumWheels (Blocks to Java)", group = "")
 public class MecanumWheels extends LinearOpMode {
   public static final double REAR_RATIO = 1;
-  public static final double SERVO_SENSITIVITY_DIVISOR = 1000;
+  public static final double SERVO_SENSITIVITY = 0.001;
 
   // Servo is more positive when more closed and more negative when more open
   public static final double SERVO_CLOSED = 1;
@@ -89,7 +89,7 @@ public class MecanumWheels extends LinearOpMode {
 
         mecanumMoveBot(FB_translation, LR_translation, rotation);
 
-        claw_position += servo_spin / SERVO_SENSITIVITY_DIVISOR;
+        claw_position += servo_spin * SERVO_SENSITIVITY;
         claw_position = Math.min(Math.max(claw_position, SERVO_OPEN), SERVO_CLOSED);
         claw_servo.setPosition(claw_position);
 
