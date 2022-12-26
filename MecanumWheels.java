@@ -81,7 +81,7 @@ public class MecanumWheels extends LinearOpMode {
         // } else {
         //   servo_spin = 0;
         // }
-        servo_spin = ARM_GAMEPAD.left_stick_y;
+        servo_spin = CLAW_GAMEPAD.left_stick_y;
         claw_position += servo_spin * SERVO_SENSITIVITY;
         claw_position = Math.min(Math.max(claw_position, SERVO_OPEN), SERVO_CLOSED);
         claw_servo.setPosition(claw_position);
