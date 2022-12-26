@@ -21,7 +21,7 @@ public class MecanumWheels extends LinearOpMode {
   public static final double REAR_RATIO = 1;
   public static final double SERVO_SENSITIVITY_DIVISOR = 1000;
 
-  // Servo is more positive when more closed and more negative when more closed
+  // Servo is more positive when more closed and more negative when more open
   public static final double SERVO_CLOSED = 1;
   public static final double SERVO_OPEN = 0.804;
 
@@ -140,4 +140,3 @@ public class MecanumWheels extends LinearOpMode {
 
   }
 }
-  
