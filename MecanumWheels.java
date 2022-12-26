@@ -25,9 +25,6 @@ public class MecanumWheels extends LinearOpMode {
   public static final double SERVO_CLOSED = 1;
   public static final double SERVO_OPEN = 0.804;
 
-  private static final Gamepad DRIVE_GAMEPAD = gamepad1;
-  private static final Gamepad ARM_GAMEPAD = gamepad2;
-  private static final Gamepad CLAW_GAMEPAD = gamepad2;
 
   private DcMotor FL;
   private DcMotor BL;
@@ -42,6 +39,10 @@ public class MecanumWheels extends LinearOpMode {
    */
   @Override
   public void runOpMode() {
+    Gamepad DRIVE_GAMEPAD = gamepad1;
+    Gamepad ARM_GAMEPAD = gamepad2;
+    Gamepad CLAW_GAMEPAD = gamepad2;
+    
     double FB_translation;
     double LR_translation;
     double rotation;
