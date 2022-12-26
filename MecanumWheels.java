@@ -72,24 +72,23 @@ public class MecanumWheels extends LinearOpMode {
         FB_translation = -DRIVE_GAMEPAD.left_stick_y;
         LR_translation = DRIVE_GAMEPAD.left_stick_x;
         rotation = DRIVE_GAMEPAD.right_stick_x;
-
-        arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
-
-        arm4.setPower(arm_power);
-
-        if (CLAW_GAMEPAD.right_bumper){
-          servo_spin = -1;
-        } else if (CLAW_GAMEPAD.left_bumper){
-          servo_spin = 1;
-        } else {
-          servo_spin = 0;
-        }
-
         mecanumMoveBot(FB_translation, LR_translation, rotation);
 
+        // if (CLAW_GAMEPAD.right_bumper){
+        //   servo_spin = -1;
+        // } else if (CLAW_GAMEPAD.left_bumper){
+        //   servo_spin = 1;
+        // } else {
+        //   servo_spin = 0;
+        // }
+        servo_spin = ARM_GAMEPAD.left_stick_y;
         claw_position += servo_spin * SERVO_SENSITIVITY;
         claw_position = Math.min(Math.max(claw_position, SERVO_OPEN), SERVO_CLOSED);
         claw_servo.setPosition(claw_position);
+
+        // arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
+        arm_power = ARM_GAMEPAD.right_stick_y;
+        arm4.setPower(arm_power);
 
         telemetry.addData("FB_translation", FB_translation);
         telemetry.addData("LR_translation", LR_translation);
