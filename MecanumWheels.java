@@ -18,15 +18,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "MecanumWheels (Blocks to Java)", group = "")
 public class MecanumWheels extends LinearOpMode {
-  public static /*final*/ double REAR_RATIO = 0.6115;
+  public static final double REAR_RATIO = 1;
+  public static final double SERVO_SENSITIVITY_DIVISOR = 1000;
+
+  // Servo is more positive when more closed and more negative when more closed
+  public static final double SERVO_CLOSED = 1;
+  public static final double SERVO_OPEN = 0.804;
 
   private DcMotor FL;
   private DcMotor BL;
   private DcMotor FR;
-  private DcMotor BR; 
+  private DcMotor BR;
   private DcMotor arm4;
   private Servo claw_servo;
-  
+
 
   /**
    * This function is executed when this Op Mode is selected from the Driver Station.
@@ -49,11 +54,11 @@ public class MecanumWheels extends LinearOpMode {
     claw_servo = hardwareMap.servo.get("claw_servo");
 
     // Put initialization blocks here.
-    FL.setDirection(DcMotorSimple.Direction.FORWARD);
+    FL.setDirection(DcMotorSimple.Direction.REVERSE);
     BL.setDirection(DcMotorSimple.Direction.FORWARD);
     FR.setDirection(DcMotorSimple.Direction.REVERSE);
     BR.setDirection(DcMotorSimple.Direction.REVERSE);
-    
+
     waitForStart();
     if (opModeIsActive()) {
       // Put run blocks here.
@@ -62,36 +67,37 @@ public class MecanumWheels extends LinearOpMode {
         FB_translation = -gamepad1.left_stick_y;
         LR_translation = gamepad1.left_stick_x;
         rotation = gamepad1.right_stick_x;
-        
+
         arm_power = gamepad1.right_trigger - gamepad1.left_trigger;
         // arm_power *= 100;
 
         arm4.setPower(arm_power);
 
         if (gamepad1.right_bumper){
-          servo_spin = 0.5;
+          servo_spin = 1;
         } else if (gamepad1.left_bumper){
-          servo_spin = -0.5; 
+          servo_spin = -1;
         } else {
           servo_spin = 0.0;
         }
 
-        if (gamepad1.x) {
-          REAR_RATIO += 0.0001;
-        } else if (gamepad1.y) {
-          REAR_RATIO -= 0.0001;
-        }
-        
+        // if (gamepad1.x) {
+        //   REAR_RATIO += 0.0001;
+        // } else if (gamepad1.y) {
+        //   REAR_RATIO -= 0.0001;
+        // }
+
         mecanumMoveBot(FB_translation, LR_translation, rotation);
-        
-        claw_position += servo_spin / 50;
-        claw_position = Math.min(Math.max(claw_position, 0), 1);
+
+        claw_position += servo_spin / SERVO_SENSITIVITY_DIVISOR;
+        claw_position = Math.min(Math.max(claw_position, SERVO_OPEN), SERVO_CLOSED);
         claw_servo.setPosition(claw_position);
-        
+
         telemetry.addData("FB_translation", FB_translation);
         telemetry.addData("LR_translation", LR_translation);
         telemetry.addData("rotation", rotation);
         telemetry.addData("Servo_rotation", servo_spin);
+        telemetry.addData("claw_position", claw_position);
         telemetry.addData("Arm Power", arm_power);
         telemetry.addData("G1 Right Trigger", gamepad1.right_trigger);
         telemetry.addData("G1 Left Trigger", gamepad1.left_trigger);
@@ -130,76 +136,8 @@ public class MecanumWheels extends LinearOpMode {
     BL.setPower(BL_power);
     FR.setPower(FR_power);
     BR.setPower(BR_power);
-    
-    
+
+
   }
 }
-
-@Autonomous
-public class FreightFenzy_REDAuton1 extends LinearOpMode {
-
-  private DcMotor FL;
-  private DcMotor FR;
-  private DcMotor BL;
-  private DcMotor BR;
-  private DcMotor arm4;
-  private Servo claw_servo;
   
-  //Convert from the counts per revolution of the encoder to counts per inch
-  static final double HD_COUNTS_PER_REV = 28;
-  static final double DRIVE_GEAR_REDUCTION = 20.15293;
-  static final double WHEEL_CIRCUMFERENCE_MM = 90 * Math.PI;
-  static final double DRIVE_COUNTS_PER_MM = (HD_COUNTS_PER_REV * DRIVE_GEAR_REDUCTION) / WHEEL_CIRCUMFERENCE_MM;
-  static final double DRIVE_COUNTS_PER_IN = DRIVE_COUNTS_PER_MM * 25.4;
-    
-  @Override
-  public void runOpMode() {
-
-    FR = hardwareMap.get(DcMotor.class, "FrontRightDrive");
-    FL = hardwareMap.get(DcMotor.class, "FrontLeftDrive");
-    BR = hardwareMap.get(DcMotor.class, "BackRightDrive");
-    BL = hardwareMap.get(DcMotor.class, "BackLeftDrive");
-    arm4 = hardwareMap.get(DcMotor.class, "Arm");
-    claw_servo = hardwareMap.get(DcMotor.class, "Intake");
-
-   // reverse left drive motor direciton
-    LeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-    
-    waitForStart();
-    if (opModeIsActive()) {
-      // Create target positions
-      frontRightTarget = RightDrive.getCurrentPosition() + (int)(30 * DRIVE_COUNTS_PER_IN);
-      frontLeftTarget = LeftDrive.getCurrentPosition() + (int)(15 * DRIVE_COUNTS_PER_IN);
-      backRightTarget = RightDrive.getCurrentPosition() + (int)(30 * DRIVE_COUNTS_PER_IN);
-      backLeftTarget = LeftDrive.getCurrentPosition() + (int)(15 * DRIVE_COUNTS_PER_IN);
-      
-      // set target position
-      frontLeftDrive.setTargetPosition(leftTarget);
-      frontRightDrive.setTargetPosition(rightTarget);
-      backLeftDrive.setTargetPosition(leftTarget);
-      backRightDrive.setTargetPosition(rightTarget);
-      
-      //switch to run to position mode
-      frontLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      frontRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      backLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      backRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      
-      //run to position at the desiginated power
-      frontLeftDrive.setPower(0.7);
-      frontRightDrive.setPower(0.7);
-      backLeftDrive.setPower(0.7);
-      backRightDrive.setPower(0.7);
-
-      // wait until both motors are no longer busy running to position
-      while (opModeIsActive() && (frontLeftDrive.isBusy() || frontRightDrive.isBusy() || backLeftDrive.isBusy() || backRightDrive.isBusy())) {
-      }
-      
-      // set motor power back to 0 
-      frontLeftDrive.setPower(0);
-      frontRightDrive.setPower(0);
-      backLeftDrive.setPower(0);
-      backRightDrive.setPower(0);
-        }
-     }
- }
