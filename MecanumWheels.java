@@ -87,7 +87,7 @@ public class MecanumWheels extends LinearOpMode {
         claw_servo.setPosition(claw_position);
 
         // arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
-        arm_power = ARM_GAMEPAD.right_stick_y;
+        arm_power = -ARM_GAMEPAD.right_stick_y;
         arm4.setPower(arm_power);
 
         telemetry.addData("FB_translation", FB_translation);
