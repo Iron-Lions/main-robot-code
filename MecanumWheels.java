@@ -22,8 +22,8 @@ public class MecanumWheels extends LinearOpMode {
   public static final double SERVO_SENSITIVITY = 0.001;
 
   // Servo is more positive when more closed and more negative when more open
-  public static final double SERVO_CLOSED = 1;
-  public static final double SERVO_OPEN = 0.5;
+  public static final double SERVO_LOWER = 0.509;
+  public static final double SERVO_UPPER = 0.795;
 
 
   private DcMotor FL;
@@ -83,7 +83,7 @@ public class MecanumWheels extends LinearOpMode {
         // }
         servo_spin = CLAW_GAMEPAD.left_stick_y;
         claw_position += servo_spin * SERVO_SENSITIVITY;
-        claw_position = Math.min(Math.max(claw_position, SERVO_OPEN), SERVO_CLOSED);
+        claw_position = Math.min(Math.max(claw_position, SERVO_LOWER), SERVO_UPPER);
         claw_servo.setPosition(claw_position);
 
         // arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
