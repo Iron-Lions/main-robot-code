@@ -22,6 +22,7 @@ public class Auto extends LinearOpMode {
     private static final double RUN_TIME = 25;
     private static final double MOVE_SPEED = 0.5;
     private static final double DIST_TO_TIME = 3000 / 31.75;
+    private static final double LR_DIST_TO_TIME = 3000 / 17.5;
     private static final double SERVO_LOWER = 0.509;
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -75,8 +76,9 @@ public class Auto extends LinearOpMode {
         
         if (opModeIsActive()) {
             mecanumMoveBot(MOVE_SPEED, 0, 0);
-            waitDistance(15.5);
+            waitDistance(19);
             mecanumMoveBot(0, 0, 0);
+            sleep(1000);
             RGBColor coneColor = getRGB();
             telemetry.addData("Color detected", coneColor);
             telemetry.update();
@@ -85,16 +87,33 @@ public class Auto extends LinearOpMode {
                 waitDistance(36);
                 mecanumMoveBot(0, 0, 0);
             }
+            if (coneColor == RGBColor.GREEN) {
+                mecanumMoveBot(0, MOVE_SPEED, 0);
+                waitLRDistance(24);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                waitDistance(18);
+            }
+            if (coneColor == RGBColor.RED) {
+                mecanumMoveBot(0, -MOVE_SPEED, 0);
+                waitLRDistance(24);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                waitDistance(18);
+            }
+            /*
+            Test left-right speed
+            mecanumMoveBot(0, MOVE_SPEED, 0);
+            sleep(3000);
+            mecanumMoveBot(0, 0, 0);*/
         }
         
-        secondsElapsed = runtime.seconds();
-        while (secondsElapsed <= RUN_TIME) {
-            sleep(100);
-        }
     }
     
     private void waitDistance(double inches) {
         sleep((int) (inches * DIST_TO_TIME));
+    }
+    
+    private void waitLRDistance(double inches) {
+        sleep((int) (inches * LR_DIST_TO_TIME));
     }
     
     private RGBColor getRGB() {
@@ -141,4 +160,3 @@ public class Auto extends LinearOpMode {
         BR.setPower(BR_power);
     }
 }
-
