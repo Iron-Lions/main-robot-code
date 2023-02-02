@@ -11,10 +11,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-enum RGBColor {
-    RED, GREEN, BLUE, INVALID
-}
-
 @Autonomous(name = "Auto", group = "")
 
 public class Auto extends LinearOpMode {
@@ -24,6 +20,7 @@ public class Auto extends LinearOpMode {
     private static final double DIST_TO_TIME = 3000 / 31.75;
     private static final double LR_DIST_TO_TIME = 3000 / 17.5;
     private static final double SERVO_LOWER = 0.509;
+    private static final double SERVO_UPPER = 0.795;
     private ElapsedTime runtime = new ElapsedTime();
 
     private DcMotor FL;
@@ -49,7 +46,7 @@ public class Auto extends LinearOpMode {
         FR.setDirection(DcMotorSimple.Direction.FORWARD);
         BR.setDirection(DcMotorSimple.Direction.REVERSE);
         
-        claw_servo.setPosition(SERVO_LOWER);
+        claw_servo.setPosition(SERVO_UPPER);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -63,24 +60,24 @@ public class Auto extends LinearOpMode {
             waitDistance(19);
             mecanumMoveBot(0, 0, 0);
             sleep(1000);
-            RGBColor coneColor = getRGB();
-            telemetry.addData("Color detected", coneColor);
+            int zone = getZone();
+            telemetry.addData("Cone zone detected", zone);
             telemetry.update();
-            if (coneColor == RGBColor.BLUE) {
+            if (zone == 2) {
                 mecanumMoveBot(-MOVE_SPEED, 0, 0);
                 waitDistance(26);
                 mecanumMoveBot(0, 0, 0);
             }
-            if (coneColor == RGBColor.GREEN) {
+            if (zone == 3) {
                 mecanumMoveBot(-MOVE_SPEED, 0, 0);
-                waitDistance(10);
+                waitDistance(3);
                 mecanumMoveBot(0, -MOVE_SPEED, 0);
                 waitLRDistance(21);
                 mecanumMoveBot(0, 0, 0);
             }
-            if (coneColor == RGBColor.RED) {
+            if (zone == 1) {
                 mecanumMoveBot(-MOVE_SPEED, 0, 0);
-                waitDistance(10);
+                waitDistance(3);
                 mecanumMoveBot(0, MOVE_SPEED, 0);
                 waitLRDistance(21);
                 mecanumMoveBot(0, 0, 0);
@@ -103,25 +100,24 @@ public class Auto extends LinearOpMode {
         sleep((int) (inches * LR_DIST_TO_TIME));
     }
     
-    private RGBColor getRGB() {
-        int red, green, blue;
-        red = col_sensor.red();
-        green = col_sensor.green();
-        blue = col_sensor.blue();
+    private int getZone() {
+        int red = col_sensor.red();
+        int green = col_sensor.green();
+        int blue = col_sensor.blue();
         
         if (blue >= red && blue >= green) {
-            return RGBColor.BLUE;
+            return 2;
         }
         
         if (red >= green && red >= blue) {
-            return RGBColor.RED;
+            return 1;
         }
         
         if (green >= red && green >= blue) {
-            return RGBColor.GREEN;
+            return 3;
         }
         
-        return RGBColor.INVALID;
+        return 0;
     }
 
     /**
