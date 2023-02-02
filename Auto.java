@@ -57,25 +57,9 @@ public class Auto extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-
-        // run until the end of the match (driver presses STOP)
-        // while (opModeIsActive()) {
-        //     mecanumMoveBot(MOVE_SPEED, 0, 0);
-        //     sleep(5000);
-        //     mecanumMoveBot(0, 0, 0);
-
-        //     secondsElapsed = runtime.seconds();
-        //     if (secondsElapsed > RUN_TIME) {
-        //         break;
-        //     }
-
-        //     // Show the elapsed game time and wheel power.
-        //     telemetry.addData("secondsElapsed", secondsElapsed);
-        //     telemetry.update();
-        // }
         
         if (opModeIsActive()) {
-            mecanumMoveBot(MOVE_SPEED, 0, 0);
+            mecanumMoveBot(-MOVE_SPEED, 0, 0);
             waitDistance(19);
             mecanumMoveBot(0, 0, 0);
             sleep(1000);
@@ -83,22 +67,25 @@ public class Auto extends LinearOpMode {
             telemetry.addData("Color detected", coneColor);
             telemetry.update();
             if (coneColor == RGBColor.BLUE) {
-                mecanumMoveBot(MOVE_SPEED, 0, 0);
-                waitDistance(36);
+                mecanumMoveBot(-MOVE_SPEED, 0, 0);
+                waitDistance(26);
                 mecanumMoveBot(0, 0, 0);
             }
             if (coneColor == RGBColor.GREEN) {
-                mecanumMoveBot(0, MOVE_SPEED, 0);
-                waitLRDistance(24);
-                mecanumMoveBot(MOVE_SPEED, 0, 0);
-                waitDistance(18);
+                mecanumMoveBot(-MOVE_SPEED, 0, 0);
+                waitDistance(10);
+                mecanumMoveBot(0, -MOVE_SPEED, 0);
+                waitLRDistance(21);
+                mecanumMoveBot(0, 0, 0);
             }
             if (coneColor == RGBColor.RED) {
-                mecanumMoveBot(0, -MOVE_SPEED, 0);
-                waitLRDistance(24);
-                mecanumMoveBot(MOVE_SPEED, 0, 0);
-                waitDistance(18);
+                mecanumMoveBot(-MOVE_SPEED, 0, 0);
+                waitDistance(10);
+                mecanumMoveBot(0, MOVE_SPEED, 0);
+                waitLRDistance(21);
+                mecanumMoveBot(0, 0, 0);
             }
+            
             /*
             Test left-right speed
             mecanumMoveBot(0, MOVE_SPEED, 0);
@@ -122,16 +109,16 @@ public class Auto extends LinearOpMode {
         green = col_sensor.green();
         blue = col_sensor.blue();
         
+        if (blue >= red && blue >= green) {
+            return RGBColor.BLUE;
+        }
+        
         if (red >= green && red >= blue) {
             return RGBColor.RED;
         }
         
         if (green >= red && green >= blue) {
             return RGBColor.GREEN;
-        }
-        
-        if (blue >= red && blue >= green) {
-            return RGBColor.BLUE;
         }
         
         return RGBColor.INVALID;
