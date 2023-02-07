@@ -30,9 +30,6 @@ public class Auto extends LinearOpMode {
     private Servo claw_servo;
     private ColorSensor col_sensor;
 
-    private double x = 0;
-    private double y = 0;
-
     @Override
     public void runOpMode() {
         double secondsElapsed;
