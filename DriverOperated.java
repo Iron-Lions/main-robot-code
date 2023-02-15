@@ -66,6 +66,10 @@ public class DriverOperated extends LinearOpMode {
     BL.setDirection(DcMotorSimple.Direction.FORWARD);
     FR.setDirection(DcMotorSimple.Direction.FORWARD);
     BR.setDirection(DcMotorSimple.Direction.REVERSE);
+    
+    arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    
 
     waitForStart();
     if (opModeIsActive()) {
@@ -94,6 +98,7 @@ public class DriverOperated extends LinearOpMode {
         arm4.setPower(arm_power);
         arm4_r.setPower(-arm_power);
         
+        int encoder_position = arm4.getCurrentPosition();
 
         telemetry.addData("FB_translation", FB_translation);
         telemetry.addData("LR_translation", LR_translation);
@@ -102,6 +107,7 @@ public class DriverOperated extends LinearOpMode {
         telemetry.addData("claw_position", claw_position);
         telemetry.addData("Arm Power", arm_power);
         telemetry.addData("Gear ratio", REAR_RATIO);
+        telemetry.addData("Encoder Position", encoder_position);
         telemetry.update();
       }
     }
