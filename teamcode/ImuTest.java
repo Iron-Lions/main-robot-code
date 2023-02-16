@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public class ImuTest extends LinearOpMode {
     private IMU imu;
-    double yaw;
+    private double yaw;
     
     @Override
     public void runOpMode() {

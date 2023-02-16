@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 /**
  * Controls:
@@ -34,6 +36,8 @@ public class DriverOperated extends LinearOpMode {
   private DcMotor arm4;
   private DcMotor arm4_r;
   private Servo claw_servo;
+  private IMU imu;
+  private double yaw;
 
 
   /**
@@ -61,7 +65,6 @@ public class DriverOperated extends LinearOpMode {
     arm4_r = hardwareMap.dcMotor.get("arm4_r");
     claw_servo = hardwareMap.servo.get("claw_servo");
 
-    // Put initialization blocks here.
     FL.setDirection(DcMotorSimple.Direction.FORWARD);
     BL.setDirection(DcMotorSimple.Direction.FORWARD);
     FR.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -71,6 +74,15 @@ public class DriverOperated extends LinearOpMode {
     arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     int arm4_initial = arm4.getCurrentPosition();
     
+    imu = hardwareMap.get(IMU.class, "imu");
+    imu.initialize(
+        new IMU.Parameters(
+            new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP
+            )
+        )
+    );
 
     waitForStart();
     if (opModeIsActive()) {
@@ -105,6 +117,8 @@ public class DriverOperated extends LinearOpMode {
         arm4.setPower(arm_power);
         arm4_r.setPower(-arm_power);
 
+        yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
         telemetry.addData("FB_translation", FB_translation);
         telemetry.addData("LR_translation", LR_translation);
         telemetry.addData("rotation", rotation);
@@ -113,6 +127,7 @@ public class DriverOperated extends LinearOpMode {
         telemetry.addData("Arm Power", arm_power);
         telemetry.addData("Gear ratio", REAR_RATIO);
         telemetry.addData("Encoder Position", arm4_position);
+        telemetry.addData("Yaw (Degrees)", yaw);
         telemetry.update();
       } 
     }
