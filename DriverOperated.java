@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+
 /**
  * Controls:
  * gamepad1 left_stick - translational motion
@@ -25,7 +26,6 @@ public class DriverOperated extends LinearOpMode {
   // Servo is more positive when more closed and more negative when more open
   public static final double SERVO_LOWER = 0.509;
   public static final double SERVO_UPPER = 0.795;
-
 
   private DcMotor FL;
   private DcMotor BL;
@@ -51,7 +51,7 @@ public class DriverOperated extends LinearOpMode {
     double servo_spin;
     double arm_power;
     double claw_position = SERVO_LOWER;
-
+    int arm4_position;
 
     FL = hardwareMap.dcMotor.get("FL");
     BL = hardwareMap.dcMotor.get("BL");
@@ -69,6 +69,7 @@ public class DriverOperated extends LinearOpMode {
     
     arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    int arm4_initial = arm4.getCurrentPosition();
     
 
     waitForStart();
@@ -95,10 +96,14 @@ public class DriverOperated extends LinearOpMode {
 
         // arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
         arm_power = -ARM_GAMEPAD.right_stick_y;
+        
+        arm4_position = arm4.getCurrentPosition();
+        if (arm4_position < arm4_initial){
+          arm_power = Math.max(0, arm_power);
+        }
+        
         arm4.setPower(arm_power);
         arm4_r.setPower(-arm_power);
-        
-        int encoder_position = arm4.getCurrentPosition();
 
         telemetry.addData("FB_translation", FB_translation);
         telemetry.addData("LR_translation", LR_translation);
@@ -107,9 +112,9 @@ public class DriverOperated extends LinearOpMode {
         telemetry.addData("claw_position", claw_position);
         telemetry.addData("Arm Power", arm_power);
         telemetry.addData("Gear ratio", REAR_RATIO);
-        telemetry.addData("Encoder Position", encoder_position);
+        telemetry.addData("Encoder Position", arm4_position);
         telemetry.update();
-      }
+      } 
     }
   }
 
@@ -142,4 +147,3 @@ public class DriverOperated extends LinearOpMode {
 
   }
 }
-
