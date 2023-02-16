@@ -19,8 +19,8 @@ public class Auto extends LinearOpMode {
     private static final double MOVE_SPEED = 0.5;
     private static final double DIST_TO_TIME = 3000 / 31.75;
     private static final double LR_DIST_TO_TIME = 3000 / 17.5;
-    private static final double SERVO_LOWER = 0.509;
-    private static final double SERVO_UPPER = 0.795;
+    private static final double SERVO_LOWER = 0.509;    // Claw open
+    private static final double SERVO_UPPER = 0.795;    // Claw closed
     private ElapsedTime runtime = new ElapsedTime();
 
     private DcMotor FL;

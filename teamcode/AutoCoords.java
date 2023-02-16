@@ -2,8 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import java.lang.Math;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.IMU;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,7 +16,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 @Autonomous(name = "Auto (New)", group = "")
 
@@ -23,6 +23,7 @@ public class AutoCoords extends LinearOpMode {
 
     private static final double RUN_TIME = 25;
     private static final double MOVE_SPEED = 0.5;
+    private static final double ROTATE_SPEED = 0.4;
     private static final double FB_DIST_TO_TIME = 3000 / 31.75;
     private static final double LR_DIST_TO_TIME = 3000 / 17.5;
     private static final double SERVO_LOWER = 0.509; // Claw open
@@ -36,6 +37,7 @@ public class AutoCoords extends LinearOpMode {
     private Servo claw_servo;
     private ColorSensor col_sensor;
     private IMU imu;
+    private double yaw;
 
     private double current_x = 0;
     private double current_y = 0;
@@ -79,21 +81,39 @@ public class AutoCoords extends LinearOpMode {
         claw_servo.setPosition(SERVO_UPPER);
 
         if (opModeIsActive()) {
-            goToFBLR(0, -19);
-            sleep(1000);
-            int zone = getZone();
-            telemetry.addData("Cone zone detected", zone);
-            telemetry.update();
-            if (zone == 2) {
-                goToFBLR(0, -45);
-            }
-            if (zone == 3) {
-                goToFBLR(-21, -22);
-            }
-            if (zone == 1) {
-                goToFBLR(21, -22);
-            }
+            rotate180();
+            // goToFBLR(0, -19);
+            // sleep(1000);
+            // int zone = getZone();
+            // telemetry.addData("Cone zone detected", zone);
+            // telemetry.update();
+            // if (zone == 2) {
+            //     goToFBLR(0, -45);
+            // }
+            // if (zone == 3) {
+            //     goToFBLR(-21, -22);
+            // }
+            // if (zone == 1) {
+            //     goToFBLR(21, -22);
+            // }
         }
+    }
+
+    private void rotate180() {
+        imu.resetYaw();
+        mecanumMoveBot(0, 0, ROTATE_SPEED);
+        sleep(100);
+        double yawCurrentSign;
+        yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        if (yaw >= 0) {
+            yawCurrentSign = 1;
+        } else {
+            yawCurrentSign = -1;
+        }
+        while(yaw / yawCurrentSign > 0) {
+            yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        }
+        current_y *= -1;
     }
 
     private void waitDistanceFB(double inches) {
