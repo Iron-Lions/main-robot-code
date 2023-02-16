@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import java.lang.Math;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,9 +15,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+
 @Autonomous(name = "Auto (New)", group = "")
 
-public class Auto extends LinearOpMode {
+public class AutoCoords extends LinearOpMode {
 
     private static final double RUN_TIME = 25;
     private static final double MOVE_SPEED = 0.5;
@@ -31,6 +35,7 @@ public class Auto extends LinearOpMode {
     private DcMotor BR;
     private Servo claw_servo;
     private ColorSensor col_sensor;
+    private IMU imu;
 
     private double current_x = 0;
     private double current_y = 0;
@@ -43,13 +48,24 @@ public class Auto extends LinearOpMode {
         BL = hardwareMap.dcMotor.get("BL");
         FR = hardwareMap.dcMotor.get("FR");
         BR = hardwareMap.dcMotor.get("BR");
-        claw_servo = hardwareMap.servo.get("claw_servo");
-        col_sensor = hardwareMap.colorSensor.get("color_sensor");
-
         FL.setDirection(DcMotorSimple.Direction.FORWARD);
         BL.setDirection(DcMotorSimple.Direction.FORWARD);
         FR.setDirection(DcMotorSimple.Direction.FORWARD);
         BR.setDirection(DcMotorSimple.Direction.REVERSE);
+        
+        claw_servo = hardwareMap.servo.get("claw_servo");
+        col_sensor = hardwareMap.colorSensor.get("color_sensor");
+        
+        
+        imu = hardwareMap.get(IMU.class, "imu");
+        imu.initialize(
+            new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP
+                )
+            )
+        );
 
         claw_servo.setPosition(SERVO_LOWER);
 
@@ -89,7 +105,7 @@ public class Auto extends LinearOpMode {
     }
 
     private void moveDistanceFB(double inches) {
-        y += inches;
+        current_y += inches;
         if (inches < 0) {
             mecanumMoveBot(-MOVE_SPEED, 0, 0);
         } else {
@@ -100,7 +116,7 @@ public class Auto extends LinearOpMode {
     }
 
     private void moveDistanceLR(double inches) {
-        x += inches;
+        current_x += inches;
         if (inches < 0) {
             mecanumMoveBot(0, -MOVE_SPEED, 0);
         } else {
