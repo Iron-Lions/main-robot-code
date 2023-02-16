@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -16,8 +17,8 @@ import com.qualcomm.robotcore.hardware.Servo;
  * gamepad1 left_bumper - close claw
  */
 
-@TeleOp(name = "MecanumWheels (Blocks to Java)", group = "")
-public class MecanumWheels extends LinearOpMode {
+@TeleOp(name = "DriverOperated", group = "")
+public class DriverOperated extends LinearOpMode {
   public static final double REAR_RATIO = 1;
   public static final double SERVO_SENSITIVITY = 0.001;
 
@@ -31,6 +32,7 @@ public class MecanumWheels extends LinearOpMode {
   private DcMotor FR;
   private DcMotor BR;
   private DcMotor arm4;
+  private DcMotor arm4_r;
   private Servo claw_servo;
 
 
@@ -56,6 +58,7 @@ public class MecanumWheels extends LinearOpMode {
     FR = hardwareMap.dcMotor.get("FR");
     BR = hardwareMap.dcMotor.get("BR");
     arm4 = hardwareMap.dcMotor.get("arm4");
+    arm4_r = hardwareMap.dcMotor.get("arm4_r");
     claw_servo = hardwareMap.servo.get("claw_servo");
 
     // Put initialization blocks here.
@@ -63,6 +66,10 @@ public class MecanumWheels extends LinearOpMode {
     BL.setDirection(DcMotorSimple.Direction.FORWARD);
     FR.setDirection(DcMotorSimple.Direction.FORWARD);
     BR.setDirection(DcMotorSimple.Direction.REVERSE);
+    
+    arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    
 
     waitForStart();
     if (opModeIsActive()) {
@@ -89,6 +96,9 @@ public class MecanumWheels extends LinearOpMode {
         // arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
         arm_power = -ARM_GAMEPAD.right_stick_y;
         arm4.setPower(arm_power);
+        arm4_r.setPower(-arm_power);
+        
+        int encoder_position = arm4.getCurrentPosition();
 
         telemetry.addData("FB_translation", FB_translation);
         telemetry.addData("LR_translation", LR_translation);
@@ -97,6 +107,7 @@ public class MecanumWheels extends LinearOpMode {
         telemetry.addData("claw_position", claw_position);
         telemetry.addData("Arm Power", arm_power);
         telemetry.addData("Gear ratio", REAR_RATIO);
+        telemetry.addData("Encoder Position", encoder_position);
         telemetry.update();
       }
     }
@@ -131,3 +142,4 @@ public class MecanumWheels extends LinearOpMode {
 
   }
 }
+
