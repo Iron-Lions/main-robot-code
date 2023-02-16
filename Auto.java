@@ -19,8 +19,8 @@ public class Auto extends LinearOpMode {
     private static final double MOVE_SPEED = 0.5;
     private static final double FB_DIST_TO_TIME = 3000 / 31.75;
     private static final double LR_DIST_TO_TIME = 3000 / 17.5;
-    private static final double SERVO_LOWER = 0.509;
-    private static final double SERVO_UPPER = 0.795;
+    private static final double SERVO_LOWER = 0.509; // Claw open
+    private static final double SERVO_UPPER = 0.795; // Claw closed
     private ElapsedTime runtime = new ElapsedTime();
 
     private DcMotor FL;
@@ -46,7 +46,7 @@ public class Auto extends LinearOpMode {
         FR.setDirection(DcMotorSimple.Direction.FORWARD);
         BR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        claw_servo.setPosition(SERVO_UPPER);
+        claw_servo.setPosition(SERVO_LOWER);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -54,6 +54,8 @@ public class Auto extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
+
+        claw_servo.setPosition(SERVO_UPPER);
 
         if (opModeIsActive()) {
             moveDistanceFB(-MOVE_SPEED, 19);
