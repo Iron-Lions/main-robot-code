@@ -23,7 +23,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 @TeleOp(name = "DriverOperated", group = "")
 public class DriverOperated extends LinearOpMode {
   public static final double REAR_RATIO = 1;
-  public static final double SERVO_SENSITIVITY = 0.001;
+  public static final double SERVO_SENSITIVITY = 0.01;
 
   // Servo is more positive when more closed and more negative when more open
   public static final double SERVO_LOWER = 0.509;
