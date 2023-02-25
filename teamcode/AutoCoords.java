@@ -81,39 +81,21 @@ public class AutoCoords extends LinearOpMode {
         claw_servo.setPosition(SERVO_UPPER);
 
         if (opModeIsActive()) {
-            rotate180();
-            // goToFBLR(0, -19);
-            // sleep(1000);
-            // int zone = getZone();
-            // telemetry.addData("Cone zone detected", zone);
-            // telemetry.update();
-            // if (zone == 2) {
-            //     goToFBLR(0, -45);
-            // }
-            // if (zone == 3) {
-            //     goToFBLR(-21, -22);
-            // }
-            // if (zone == 1) {
-            //     goToFBLR(21, -22);
-            // }
+            goToFBLR(0, -19);
+            sleep(1000);
+            int zone = getZone();
+            telemetry.addData("Cone zone detected", zone);
+            telemetry.update();
+            if (zone == 2) {
+                goToFBLR(0, -45);
+            }
+            if (zone == 3) {
+                goToFBLR(-21, -22);
+            }
+            if (zone == 1) {
+                goToFBLR(21, -22);
+            }
         }
-    }
-
-    private void rotate180() {
-        imu.resetYaw();
-        mecanumMoveBot(0, 0, ROTATE_SPEED);
-        sleep(100);
-        double yawCurrentSign;
-        yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        if (yaw >= 0) {
-            yawCurrentSign = 1;
-        } else {
-            yawCurrentSign = -1;
-        }
-        while(yaw / yawCurrentSign > 0) {
-            yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        }
-        current_y *= -1;
     }
 
     private void waitDistanceFB(double inches) {
