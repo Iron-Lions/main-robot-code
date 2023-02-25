@@ -92,9 +92,9 @@ public class DriverOperated extends LinearOpMode {
       // Put run blocks here.
       while (opModeIsActive()) {
         // Put loop blocks here.
-        FB_translation = -DRIVE_GAMEPAD.left_stick_y;
-        LR_translation = DRIVE_GAMEPAD.left_stick_x;
-        rotation = DRIVE_GAMEPAD.right_stick_x;
+        FB_translation = cube(-DRIVE_GAMEPAD.left_stick_y);
+        LR_translation = cube(DRIVE_GAMEPAD.left_stick_x);
+        rotation = cube(DRIVE_GAMEPAD.right_stick_x);
         mecanumMoveBot(FB_translation, LR_translation, rotation);
 
         // if (CLAW_GAMEPAD.right_bumper){
@@ -137,6 +137,10 @@ public class DriverOperated extends LinearOpMode {
         telemetry.update();
       } 
     }
+  }
+
+  private double cube(double num) {
+    return num * num * num;
   }
 
   /**
