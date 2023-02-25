@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 
-@Autonomous(name = "Auto (Score on Right)", group = "")
+@Autonomous(name = "Auto (Start on Left)", group = "")
 
 public class AutoCoords extends LinearOpMode {
 
@@ -98,25 +98,26 @@ public class AutoCoords extends LinearOpMode {
             sleep(1000);
 
             goToFBLR(0, 20);
-            sleep(1000);
             int zone = getZone();
             telemetry.addData("Cone zone detected", zone);
             telemetry.update();
-            // if (zone == 2) {
-            //     goToFBLR(0, 50);
-            //     goToFBLR(0, 40);
-            // }
-            // if (zone == 3) {
-            //     goToFBLR(0, 30);
-            //     goToFBLR(33, 23);
-            // }
-            // if (zone == 1) {
-            //     goToFBLR(0, 30);
-            //     goToFBLR(-35, 23);
-            // }
-            goToFBLR(0, 40);
-            sleep(1000);
+            goToFBLR(0, 55);
+            goToFBLR(0, 52);
+            runArmToPosition(1, 7500);
+            goToFBLR(15, 52);
             runArmToPosition(0.5, 0);
+            claw_servo.setPosition(SERVO_LOWER);
+            sleep(1000);
+            goToFBLR(15, 50);
+            if (zone == 2) {
+                goToFBLR(0, 50);
+            }
+            if (zone == 3) {
+                goToFBLR(33, 50);
+            }
+            if (zone == 1) {
+                goToFBLR(-35, 50);
+            }
         }
     }
 
