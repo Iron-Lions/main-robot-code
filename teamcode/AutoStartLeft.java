@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name = "Auto (Start on Left)", group = "")
 
-public class AutoCoords extends LinearOpMode {
+public class AutoStartLeft extends LinearOpMode {
 
     private static final double RUN_TIME = 25;
     private static final double MOVE_SPEED = 0.5;
