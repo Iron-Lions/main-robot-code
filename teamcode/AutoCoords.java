@@ -34,6 +34,8 @@ public class AutoCoords extends LinearOpMode {
     private DcMotor BL;
     private DcMotor FR;
     private DcMotor BR;
+    private DcMotor arm4;
+    private DcMotor arm4_r;
     private Servo claw_servo;
     private ColorSensor col_sensor;
     private IMU imu;
@@ -50,10 +52,15 @@ public class AutoCoords extends LinearOpMode {
         BL = hardwareMap.dcMotor.get("BL");
         FR = hardwareMap.dcMotor.get("FR");
         BR = hardwareMap.dcMotor.get("BR");
+        arm4 = hardwareMap.dcMotor.get("arm4");
+        arm4_r = hardwareMap.dcMotor.get("arm4_r");
         FL.setDirection(DcMotorSimple.Direction.FORWARD);
         BL.setDirection(DcMotorSimple.Direction.FORWARD);
         FR.setDirection(DcMotorSimple.Direction.FORWARD);
         BR.setDirection(DcMotorSimple.Direction.REVERSE);
+    
+        arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
         claw_servo = hardwareMap.servo.get("claw_servo");
         col_sensor = hardwareMap.colorSensor.get("color_sensor");
