@@ -29,6 +29,8 @@ public class DriverOperated extends LinearOpMode {
   public static final double SERVO_LOWER = 0.509;
   public static final double SERVO_UPPER = 0.795;
 
+  public static final int ARM_RANGE = 8700;
+
   private DcMotor FL;
   private DcMotor BL;
   private DcMotor FR;
@@ -73,7 +75,7 @@ public class DriverOperated extends LinearOpMode {
     arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     int arm4_initial = arm4.getCurrentPosition();
-    int arm4_upper_limit = arm4_initial + 9000;
+    int arm4_upper_limit = arm4_initial + ARM_RANGE;
     
     imu = hardwareMap.get(IMU.class, "imu");
     imu.initialize(
