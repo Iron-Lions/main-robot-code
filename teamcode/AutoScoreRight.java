@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 
-@Autonomous(name = "Auto (Score on Left)", group = "")
+@Autonomous(name = "Auto (Score on Right)", group = "")
 
 public class AutoCoords extends LinearOpMode {
 
@@ -46,7 +46,7 @@ public class AutoCoords extends LinearOpMode {
     private double current_x = 0;
     private double current_y = 0;
 
-    private void initialize_hardware() {
+    private void initializeHardware() {
         FL = hardwareMap.dcMotor.get("FL");
         BL = hardwareMap.dcMotor.get("BL");
         FR = hardwareMap.dcMotor.get("FR");
@@ -80,7 +80,7 @@ public class AutoCoords extends LinearOpMode {
 
     @Override
     public void runOpMode() {  
-        initialize_hardware();
+        initializeHardware();
         
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -93,13 +93,7 @@ public class AutoCoords extends LinearOpMode {
 
         if (opModeIsActive()) {
             sleep(1000);
-            arm4.setPower(1);
-            arm4_r.setPower(-1);
-            while(arm4.getCurrentPosition() < (arm4_initial + 2000)) {
-                sleep(50);
-            }
-            arm4.setPower(0);
-            arm4_r.setPower(0);
+            runArmToPosition(1, 2000);
 
             sleep(1000);
 
@@ -108,27 +102,45 @@ public class AutoCoords extends LinearOpMode {
             int zone = getZone();
             telemetry.addData("Cone zone detected", zone);
             telemetry.update();
-            if (zone == 2) {
-                goToFBLR(0, 50);
-                goToFBLR(0, 40);
-            }
-            if (zone == 3) {
-                goToFBLR(0, 30);
-                goToFBLR(33, 23);
-            }
-            if (zone == 1) {
-                goToFBLR(0, 30);
-                goToFBLR(-35, 23);
-            }
+            // if (zone == 2) {
+            //     goToFBLR(0, 50);
+            //     goToFBLR(0, 40);
+            // }
+            // if (zone == 3) {
+            //     goToFBLR(0, 30);
+            //     goToFBLR(33, 23);
+            // }
+            // if (zone == 1) {
+            //     goToFBLR(0, 30);
+            //     goToFBLR(-35, 23);
+            // }
+            goToFBLR(0, 40);
             sleep(1000);
-            arm4.setPower(-0.5);
-            arm4_r.setPower(0.5);
-            while(arm4.getCurrentPosition() > arm4_initial) {
-                sleep(0);
-            }
-            arm4.setPower(0);
-            arm4_r.setPower(0);
+            runArmToPosition(0.5, 0);
         }
+    }
+
+    private void setArmPower(double power) {
+        arm4.setPower(power);
+        arm4_r.setPower(-power);
+    }
+
+    private void runArmToPosition(double speed, int new_position) {
+        int direction;
+        int current_position = arm4.getCurrentPosition();
+        if(new_position == current_position) {
+            return;
+        }
+        if(new_position > current_position) {
+            direction = 1;
+        } else {
+            direction = -1;
+        }
+        setArmPower(speed * direction);
+        while((arm4.getCurrentPosition() - new_position - arm4_initial) * direction < 0) {
+            sleep(0);
+        }
+        setArmPower(0);
     }
 
     private void waitDistanceFB(double inches) {
