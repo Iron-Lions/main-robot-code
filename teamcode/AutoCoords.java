@@ -88,6 +88,12 @@ public class AutoCoords extends LinearOpMode {
         claw_servo.setPosition(SERVO_UPPER);
 
         if (opModeIsActive()) {
+            arm4.setPower(1);
+            arm4_r.setPower(-1);
+            sleep(2000);
+            arm4.setPower(0);
+            arm4_r.setPower(0);
+
             goToFBLR(0, 19);
             sleep(1000);
             int zone = getZone();
