@@ -73,6 +73,7 @@ public class DriverOperated extends LinearOpMode {
     arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     int arm4_initial = arm4.getCurrentPosition();
+    int arm4_upper_limit = arm4_initial + 9000;
     
     imu = hardwareMap.get(IMU.class, "imu");
     imu.initialize(
@@ -112,6 +113,9 @@ public class DriverOperated extends LinearOpMode {
         arm4_position = arm4.getCurrentPosition();
         if (arm4_position < arm4_initial){
           arm_power = Math.max(0, arm_power);
+        }
+        if (arm4_position > arm4_upper_limit){
+          arm_power = Math.min(0, arm_power);
         }
         
         arm4.setPower(arm_power);
