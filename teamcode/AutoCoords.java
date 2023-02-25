@@ -61,6 +61,8 @@ public class AutoCoords extends LinearOpMode {
     
         arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    
+        int arm4_initial = arm4.getCurrentPosition();
         
         claw_servo = hardwareMap.servo.get("claw_servo");
         col_sensor = hardwareMap.colorSensor.get("color_sensor");
@@ -88,11 +90,16 @@ public class AutoCoords extends LinearOpMode {
         claw_servo.setPosition(SERVO_UPPER);
 
         if (opModeIsActive()) {
+            sleep(1000);
             arm4.setPower(1);
             arm4_r.setPower(-1);
-            sleep(2000);
+            while(arm4.getCurrentPosition() < (arm4_initial + 1500)) {
+                sleep(50);
+            }
             arm4.setPower(0);
             arm4_r.setPower(0);
+
+            sleep(1000);
 
             goToFBLR(0, 19);
             sleep(1000);
