@@ -81,19 +81,19 @@ public class AutoCoords extends LinearOpMode {
         claw_servo.setPosition(SERVO_UPPER);
 
         if (opModeIsActive()) {
-            goToFBLR(0, -19);
+            goToFBLR(0, 19);
             sleep(1000);
             int zone = getZone();
             telemetry.addData("Cone zone detected", zone);
             telemetry.update();
             if (zone == 2) {
-                goToFBLR(0, -45);
+                goToFBLR(0, 45);
             }
             if (zone == 3) {
-                goToFBLR(-21, -22);
+                goToFBLR(21, 22);
             }
             if (zone == 1) {
-                goToFBLR(21, -22);
+                goToFBLR(-21, 22);
             }
         }
     }
