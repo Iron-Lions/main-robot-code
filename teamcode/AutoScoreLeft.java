@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 
-@Autonomous(name = "Auto (New)", group = "")
+@Autonomous(name = "Auto (Score on Left)", group = "")
 
 public class AutoCoords extends LinearOpMode {
 
@@ -30,6 +30,7 @@ public class AutoCoords extends LinearOpMode {
     private static final double SERVO_UPPER = 0.795; // Claw closed
     private static final int MOVE_WAIT = 500;
     private ElapsedTime runtime = new ElapsedTime();
+    private int arm4_initial;
 
     private DcMotor FL;
     private DcMotor BL;
@@ -45,10 +46,7 @@ public class AutoCoords extends LinearOpMode {
     private double current_x = 0;
     private double current_y = 0;
 
-    @Override
-    public void runOpMode() {
-        double secondsElapsed;
-
+    private void initialize_hardware() {
         FL = hardwareMap.dcMotor.get("FL");
         BL = hardwareMap.dcMotor.get("BL");
         FR = hardwareMap.dcMotor.get("FR");
@@ -62,12 +60,9 @@ public class AutoCoords extends LinearOpMode {
     
         arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    
-        int arm4_initial = arm4.getCurrentPosition();
         
         claw_servo = hardwareMap.servo.get("claw_servo");
         col_sensor = hardwareMap.colorSensor.get("color_sensor");
-        
         
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(
@@ -80,7 +75,13 @@ public class AutoCoords extends LinearOpMode {
         );
 
         claw_servo.setPosition(SERVO_LOWER);
+        arm4_initial = arm4.getCurrentPosition();
+    }
 
+    @Override
+    public void runOpMode() {  
+        initialize_hardware();
+        
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
