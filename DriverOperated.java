@@ -10,16 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
-/**
- * Controls:
- * gamepad1 left_stick - translational motion
- * gamepad1 right_stick_x - rotational motion
- * gamepad1 right_trigger - move arm up
- * gamepad1 left_trigger - move arm down
- * gamepad1 right_bumper - open claw
- * gamepad1 left_bumper - close claw
- */
-
 @TeleOp(name = "DriverOperated", group = "")
 public class DriverOperated extends LinearOpMode {
   public static final double REAR_RATIO = 1;
@@ -71,12 +61,12 @@ public class DriverOperated extends LinearOpMode {
     BL.setDirection(DcMotorSimple.Direction.FORWARD);
     FR.setDirection(DcMotorSimple.Direction.FORWARD);
     BR.setDirection(DcMotorSimple.Direction.REVERSE);
-    
+
     arm4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     arm4_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     int arm4_initial = arm4.getCurrentPosition();
     int arm4_upper_limit = arm4_initial + ARM_RANGE;
-    
+
     imu = hardwareMap.get(IMU.class, "imu");
     imu.initialize(
         new IMU.Parameters(
@@ -111,7 +101,7 @@ public class DriverOperated extends LinearOpMode {
 
         // arm_power = ARM_GAMEPAD.right_trigger - ARM_GAMEPAD.left_trigger;
         arm_power = -ARM_GAMEPAD.right_stick_y;
-        
+
         arm4_position = arm4.getCurrentPosition();
         if (arm4_position < arm4_initial){
           arm_power = Math.max(0, arm_power);
@@ -119,7 +109,7 @@ public class DriverOperated extends LinearOpMode {
         if (arm4_position > arm4_upper_limit){
           arm_power = Math.min(0, arm_power);
         }
-        
+
         arm4.setPower(arm_power);
         arm4_r.setPower(-arm_power);
 
@@ -135,7 +125,7 @@ public class DriverOperated extends LinearOpMode {
         telemetry.addData("Encoder Position", arm4_position);
         telemetry.addData("Yaw (Degrees)", yaw);
         telemetry.update();
-      } 
+      }
     }
   }
 
