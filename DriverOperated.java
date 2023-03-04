@@ -56,7 +56,7 @@ public class DriverOperated extends LinearOpMode {
     double rotation;
     double servo_spin;
     double arm_power;
-    double claw_position = SERVO_LOWER;
+    double claw_position = SERVO_UPPER;
     int arm4_position;
 
     FL = hardwareMap.dcMotor.get("FL");

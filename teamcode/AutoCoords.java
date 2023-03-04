@@ -113,11 +113,15 @@ public class AutoCoords extends LinearOpMode {
             }
             if (zone == 3) {
                 goToFBLR(0, 30);
-                goToFBLR(45, 23);
+                goToFBLR(20, 23);
+                rotateALittle(0.5);
+                goToFBLR(40, 23);
             }
             if (zone == 1) {
                 goToFBLR(0, 30);
-                goToFBLR(-51, 23);
+                goToFBLR(-25, 23);
+                rotateALittle(-1);
+                goToFBLR(-46, 23);
             }
             sleep(1000);
             arm4.setPower(-0.5);
@@ -127,6 +131,9 @@ public class AutoCoords extends LinearOpMode {
             }
             arm4.setPower(0);
             arm4_r.setPower(0);
+            
+            claw_servo.setPosition(SERVO_UPPER);
+            sleep(1000);
         }
     }
 
@@ -173,6 +180,11 @@ public class AutoCoords extends LinearOpMode {
         int red = col_sensor.red();
         int green = col_sensor.green();
         int blue = col_sensor.blue();
+        
+        telemetry.addData("Red reading", red);
+        telemetry.addData("Green reading", green);
+        telemetry.addData("Blue reading", blue);
+        telemetry.update();
 
         if (blue >= red && blue >= green) {
             return 2;
@@ -187,6 +199,12 @@ public class AutoCoords extends LinearOpMode {
         }
 
         return 0;
+    }
+    
+    private void rotateALittle(double magnitude) {
+        mecanumMoveBot(0, 0, magnitude);
+        sleep(200);
+        mecanumMoveBot(0, 0, magnitude);
     }
 
     /**

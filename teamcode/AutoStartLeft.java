@@ -104,11 +104,11 @@ public class AutoStartLeft extends LinearOpMode {
             goToFBLR(0, 55);
             goToFBLR(0, 50);
             runArmToPosition(1, 7500);
-            goToFBLR(30, 50);
+            goToFBLR(20, 50);
             runArmToPosition(0.5, 0);
             claw_servo.setPosition(SERVO_LOWER);
             sleep(1000);
-            goToFBLR(35, 45);
+            goToFBLR(20, 45);
             if (zone == 2) {
                 goToFBLR(0, 45);
             }
