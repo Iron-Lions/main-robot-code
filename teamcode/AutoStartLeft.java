@@ -97,26 +97,26 @@ public class AutoStartLeft extends LinearOpMode {
 
             sleep(1000);
 
-            goToFBLR(0, 20);
+            goToFBLR(0, 24);
             int zone = getZone();
             telemetry.addData("Cone zone detected", zone);
             telemetry.update();
             goToFBLR(0, 55);
-            goToFBLR(0, 52);
+            goToFBLR(0, 50);
             runArmToPosition(1, 7500);
-            goToFBLR(15, 52);
+            goToFBLR(30, 50);
             runArmToPosition(0.5, 0);
             claw_servo.setPosition(SERVO_LOWER);
             sleep(1000);
-            goToFBLR(15, 50);
+            goToFBLR(35, 45);
             if (zone == 2) {
-                goToFBLR(0, 50);
+                goToFBLR(0, 45);
             }
             if (zone == 3) {
-                goToFBLR(33, 50);
+                goToFBLR(40, 45);
             }
             if (zone == 1) {
-                goToFBLR(-35, 50);
+                goToFBLR(-45, 45);
             }
         }
     }

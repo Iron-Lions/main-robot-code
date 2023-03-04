@@ -102,7 +102,7 @@ public class AutoCoords extends LinearOpMode {
 
             sleep(1000);
 
-            goToFBLR(0, 20);
+            goToFBLR(0, 24);
             sleep(1000);
             int zone = getZone();
             telemetry.addData("Cone zone detected", zone);
@@ -113,11 +113,11 @@ public class AutoCoords extends LinearOpMode {
             }
             if (zone == 3) {
                 goToFBLR(0, 30);
-                goToFBLR(33, 23);
+                goToFBLR(45, 23);
             }
             if (zone == 1) {
                 goToFBLR(0, 30);
-                goToFBLR(-35, 23);
+                goToFBLR(-51, 23);
             }
             sleep(1000);
             arm4.setPower(-0.5);
