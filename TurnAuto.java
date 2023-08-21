@@ -15,7 +15,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class TurnAuto extends LinearOpMode {
     private IMU imu;
     private double yaw;
-
+    String ran_rotate_method = "no";
+    
     @Override
     public void runOpMode()  throws InterruptedException{
         imu = hardwareMap.get(IMU.class, "imu");
@@ -38,14 +39,14 @@ public class TurnAuto extends LinearOpMode {
         motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         
         waitForStart();
-        if (isStopRequested()) return;
-
+        if(opModeIsActive()){
+            Rotate('R',90.0,0.25);
+            Rotate('L',180.0,0.25);
+            Rotate('R',90.0,0.25);
+        }
+        
         while (opModeIsActive()) {
             yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-            
-            
-            
-            telemetry.addData("yaw", yaw);
             telemetry.update();
         }
     }
@@ -69,28 +70,44 @@ public class TurnAuto extends LinearOpMode {
         
     }
 */
-    // Positve yaw is left. Negative yaw is right. Left=L Right=R
+    // Positive yaw is left. Negative yaw is right. Left=L Right=R
     public void Rotate(char direction, double angle, double motorPower){
         imu.resetYaw();
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        
+        angle = angle-7.5;
+        
         if(direction == 'R'){
-            while (yaw >= angle){
+            while (yaw >= -angle){
+                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
                 motorFrontLeft.setPower(motorPower);
                 motorBackLeft.setPower(motorPower);
                 motorFrontRight.setPower(-motorPower);
                 motorBackRight.setPower(-motorPower);
-            }
+                telemetry.addData("yaw", yaw);
+                telemetry.update();
+            } 
         }
+        
         if(direction == 'L'){
-           while (yaw <= angle){
+            while (yaw <= angle){
+                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
                 motorFrontLeft.setPower(-motorPower);
                 motorBackLeft.setPower(-motorPower);
                 motorFrontRight.setPower(motorPower);
                 motorBackRight.setPower(motorPower);
+                telemetry.addData("yaw", yaw);
+                telemetry.update();
             } 
         }
+        
+        motorFrontLeft.setPower(0);
+        motorBackLeft.setPower(0);
+        motorFrontRight.setPower(0);
+        motorBackRight.setPower(0);
+        ran_rotate_method = "yes";
     }
 }
