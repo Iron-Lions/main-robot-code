@@ -69,6 +69,46 @@ public class GoBuilda_Mecanum extends LinearOpMode {
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
+
+            while(gamepad1.a == true) {
+                movement(b,1.0,5.0);
+            }
+
         }
+        public void movement(char direction, double motorPower, double distance) {
+
+        if (direction == 'b'){
+            distance = -distance;
+        }
+
+        motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double distanceTravelled = 0;
+        double numOfTicks = (distance/(96*Math.pi))*537.7;
+
+        motorFrontRight.RunMode.RUN_TO_POSITION(distance);
+        motorFrontLeft.RunMode.RUN_TO_POSITION(distance);
+        motorBackRight.RunMode.RUN_TO_POSITION(distance);
+        motorBackRight.RunMode.RUN_TO_POSITION(distance);
+
+        //distanceTravelled will be calculated with encoders
+
+        /*while (distanceTravelled < distance){
+            motorFrontRight.setPower(motorPower);
+            motorBackRight.setPower(motorPower);
+            motorFrontLeft.setPower(motorPower);
+            motorBackLeft.setPower(motorPower);
+            distanceTravelled = encoder * 96 * 3.14;
+        }*/    
+        
+        motorFrontRight.setPower(0);
+        motorBackRight.setPower(0);
+        motorFrontLeft.setPower(0);
+        motorBackLeft.setPower(0);
+        
+    }
+
     }
 }
