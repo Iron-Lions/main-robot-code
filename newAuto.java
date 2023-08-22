@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 
-@Autonomous(name = "TurnAuto", group = "")
+@Autonomous(name = "newAuto", group = "")
 
-public class TurnAuto extends LinearOpMode {
+public class newAuto extends LinearOpMode {
     private IMU imu;
     private double yaw;
     String ran_rotate_method = "no";
