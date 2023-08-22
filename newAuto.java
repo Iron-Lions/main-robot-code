@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class newAuto extends LinearOpMode {
     private IMU imu;
     private double yaw;
-    String ran_rotate_method = "no";
     
     @Override
     public void runOpMode()  throws InterruptedException{
@@ -43,11 +42,13 @@ public class newAuto extends LinearOpMode {
             Rotate('R',90.0,0.25);
             Rotate('L',180.0,0.25);
             Rotate('R',90.0,0.25);
-            movement('b',1.0,50000);
+            movement('f',0.25,500);
         }
         
         while (opModeIsActive()) {
             yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            telemetry.addData("Encoder Value", motorFrontRight.getCurrentPosition());
+            telemetry.addData("Target Value", motorFrontRight.getTargetPosition());
             telemetry.update();
         }
     }
@@ -79,6 +80,11 @@ public class newAuto extends LinearOpMode {
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
         
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        
         angle = angle-7.5;
         
         if(direction == 'R'){
@@ -109,9 +115,10 @@ public class newAuto extends LinearOpMode {
         motorBackLeft.setPower(0);
         motorFrontRight.setPower(0);
         motorBackRight.setPower(0);
-        ran_rotate_method = "yes";
     }
     public void movement(char direction, double motorPower, double distance) {
+        
+        int distanceTravelled = 0;
         
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
@@ -119,40 +126,67 @@ public class newAuto extends LinearOpMode {
         DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
         
         
-        
         if (direction == 'b'){
             distance = -distance;
         }
-
-
-        double distanceTravelled = 0;
+        
         int numOfTicks = (int)Math.round((distance/(96*Math.PI))*537.7);
         
+        telemetry.addData("Ticks", numOfTicks);
+        telemetry.update();
+        
+        motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        
+        telemetry.addData("Reset Encoder", "True");
+        telemetry.update();
         
         motorFrontRight.setTargetPosition(numOfTicks);
         motorFrontLeft.setTargetPosition(numOfTicks);
         motorBackRight.setTargetPosition(numOfTicks);
         motorBackLeft.setTargetPosition(numOfTicks);
         
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        
-        //distanceTravelled will be calculated with encoders
-
-        /*while (distanceTravelled < distance){
-            motorFrontRight.setPower(motorPower);
-            motorBackRight.setPower(motorPower);
-            motorFrontLeft.setPower(motorPower);
-            motorBackLeft.setPower(motorPower);
-            distanceTravelled = encoder * 96 * 3.14;
-        } */   
+        telemetry.addData("Set Target Position", "True");
+        telemetry.addData("Ticks", numOfTicks);
+        telemetry.update();
         
         motorFrontRight.setPower(motorPower);
         motorBackRight.setPower(motorPower);
         motorFrontLeft.setPower(motorPower);
         motorBackLeft.setPower(motorPower);
         
+        telemetry.addData("Set Motor Power", "True");
+        telemetry.addData("Target Value", motorFrontRight.getTargetPosition());
+        telemetry.update();
+        
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        
+        telemetry.addData("Encoder Value", motorFrontRight.getCurrentPosition());
+        telemetry.update();
+        
+        while(opModeIsActive() && motorFrontLeft.isBusy() && motorFrontRight.isBusy() && motorBackLeft.isBusy() && motorBackRight.isBusy()) {
+            idle();
+        }
+        
+        //distanceTravelled will be calculated with encoders
+        
+        
+        /*while (distanceTravelled < numOfTicks){
+            motorFrontRight.setPower(motorPower);
+            motorBackRight.setPower(motorPower);
+            motorFrontLeft.setPower(motorPower);
+            motorBackLeft.setPower(motorPower);
+            int encoder = motorFrontRight.getCurrentPosition();
+            distanceTravelled = (int)(encoder * 96 * 3.14);
+            telemetry.addData("Distance Travelled", distanceTravelled);
+            telemetry.addData("encoder", encoder);
+            telemetry.addData("Ticks", numOfTicks);
+            telemetry.update();
+        }*/
     }
 }
