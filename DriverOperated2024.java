@@ -19,10 +19,10 @@ public class DriverOperated2024 extends LinearOpMode {
     private DcMotor motorBackLeft;
     private DcMotor motorFrontRight;
     private DcMotor motorBackRight;
-    private IMU imu;
     private DcMotor lift;
     private DcMotor arm;
     private DcMotor intake;
+    private IMU imu;
 
 
 
@@ -78,20 +78,40 @@ public class DriverOperated2024 extends LinearOpMode {
             liftEncoderPosition = lift.getCurrentPosition();
             liftPower = LIFT_GAMEPAD.left_stick_y;
 
-            if (liftEncoderPosition <= MIN_LIFT_POSITION) {
+            if (liftEncoderPosition < MIN_LIFT_POSITION) {
                 lift.setPower(Math.max(LIFT_GAMEPAD.left_stick_y, 0));
             }
-            else if (liftEncoderPosition >= MAX_LIFT_POSITION) {
+            else if (liftEncoderPosition > MAX_LIFT_POSITION) {
                 lift.setPower(Math.min(LIFT_GAMEPAD.left_stick_y, 0));
             }
             else {
                 lift.setPower(liftPower);
             }
 
+
             //Rotates secondary arm up and down
 
-            double armPower = ARM_GAMEPAD.right_stick_y;
+            double armPower = INTAKE_GAMEPAD.right_stick_y;
             arm.setPower(armPower);
+
+
+            int check = 0;
+            if(INTAKE_GAMEPAD.right_bumper && check!=1){
+                check = 1;
+                intake.setPower(check);
+            }
+            if(INTAKE_GAMEPAD.left_bumper && check!=-1){
+                check = -1;
+                intake.setPower(check);
+            }
+            if(INTAKE_GAMEPAD.right_bumper && check == 1){
+                check = 0;
+                intake.setPower(check);
+            }
+            if(INTAKE_GAMEPAD.left_bumper && check == -1){
+                check = 0;
+                intake.setPower(check);
+            }
 
 
             // This button choice was made so that it is hard to hit on accident,
