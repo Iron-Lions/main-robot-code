@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 @TeleOp
-public class GoBuilda_Mecanum extends LinearOpMode {
+public class DriverOperated2024 extends LinearOpMode {
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
     private DcMotor motorFrontRight;
