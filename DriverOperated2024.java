@@ -12,12 +12,13 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 @TeleOp
 public class GoBuilda_Mecanum extends LinearOpMode {
     private IMU imu;
+    private DcMotor lift;
     private DcMotor arm;
-    double armEncoderPosition;
-    double armPower;
+    double liftEncoderPosition;
+    double liftPower;
 
-    private static final double MAX_ARM_POSITION = 0.0;
-    private static final double MIN_ARM_POSITION = 0.0;
+    private static final double MAX_LIFT_POSITION = 0.0;
+    private static final double MIN_LIFT_POSITION = 0.0;
 
 
 
@@ -31,10 +32,13 @@ public class GoBuilda_Mecanum extends LinearOpMode {
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        DcMotor lift = hardwareMap.dcMotor.get("lift");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
 
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Reverse the right side motors
@@ -60,12 +64,17 @@ public class GoBuilda_Mecanum extends LinearOpMode {
             double x = -DRIVE_GAMEPAD.left_stick_x * 1.1; // Counteract imperfect strafing
             double rx = DRIVE_GAMEPAD.right_stick_x;
 
-            armEncoderPosition = arm.getCurrentPosition();
-            armPower = ARM_GAMEPAD.left_stick_y;
-            arm.setPower(armPower);
+            liftEncoderPosition = lift.getCurrentPosition();
+            liftPower = LIFT_GAMEPAD.left_stick_y;
+            lift.setPower(armPower);
 
-            if (armEncoderPosition < MIN_ARM_POSITION || armEncoderPosition > MAX_ARM_POSITION) {
-                arm.setPower(0);
+              //Rotates secondary arm up and down 
+
+            double arm = ARM_GAMEPAD.right_stick_y;
+            arm.setPower(arm);
+
+            if (liftEncoderPosition < MIN_ARM_POSITION || armEncoderPosition > MAX_ARM_POSITION) {
+                lift.setPower(0);
             }
 
             // This button choice was made so that it is hard to hit on accident,
@@ -96,7 +105,7 @@ public class GoBuilda_Mecanum extends LinearOpMode {
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
-            telemetry.addData("Arm Position: ", armEncoderPosition);
+            telemetry.addData("Lift Position: ", liftEncoderPosition);
         }
     }
 }
