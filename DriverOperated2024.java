@@ -32,6 +32,7 @@ public class GoBuilda_Mecanum extends LinearOpMode {
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotor lift = hardwareMap.dcMotor.get("lift");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
 
@@ -80,7 +81,7 @@ public class GoBuilda_Mecanum extends LinearOpMode {
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
             // The equivalent button is start on Xbox-style controllers.
-            if (gamepad1.options) {
+            if (DRIVE_GAMEPAD.options) {
                 imu.resetYaw();
             }
 
