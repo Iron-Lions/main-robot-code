@@ -11,9 +11,14 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 @TeleOp
 public class GoBuilda_Mecanum extends LinearOpMode {
+    private DcMotor motorFrontLeft;
+    private DcMotor motorBackLeft;
+    private DcMotor motorFrontRight;
+    private DcMotor motorBackRight;
     private IMU imu;
     private DcMotor lift;
     private DcMotor arm;
+    private DcMotor intake;
     double liftEncoderPosition;
     double liftPower;
 
@@ -28,13 +33,16 @@ public class GoBuilda_Mecanum extends LinearOpMode {
         // Make sure your ID's match your configuration
         Gamepad DRIVE_GAMEPAD = gamepad1;
         Gamepad ARM_GAMEPAD = gamepad2;
-        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
-        DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
-        DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
-        DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
-        DcMotor intake = hardwareMap.dcMotor.get("intake");
-        DcMotor lift = hardwareMap.dcMotor.get("lift");
-        DcMotor arm = hardwareMap.dcMotor.get("arm");
+        Gamepad LIFT_GAMEPAD = gamepad2;
+        Gamepad INTAKE_GAMEPAD = gamepad2;
+
+        motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
+        motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
+        motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
+        motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        intake = hardwareMap.dcMotor.get("intake");
+        lift = hardwareMap.dcMotor.get("lift");
+        arm = hardwareMap.dcMotor.get("arm");
 
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -67,16 +75,22 @@ public class GoBuilda_Mecanum extends LinearOpMode {
 
             liftEncoderPosition = lift.getCurrentPosition();
             liftPower = LIFT_GAMEPAD.left_stick_y;
-            lift.setPower(armPower);
 
-              //Rotates secondary arm up and down 
-
-            double arm = ARM_GAMEPAD.right_stick_y;
-            arm.setPower(arm);
-
-            if (liftEncoderPosition < MIN_ARM_POSITION || armEncoderPosition > MAX_ARM_POSITION) {
-                lift.setPower(0);
+            if (liftEncoderPosition <= MIN_LIFT_POSITION) {
+                lift.setPower(Math.max(LIFT_GAMEPAD.left_stick_y, 0));
             }
+            else if (liftEncoderPosition >= MAX_LIFT_POSITION) {
+                lift.setPower(Math.min(LIFT_GAMEPAD.left_stick_y, 0));
+            }
+            else {
+                lift.setPower(liftPower);
+            }
+
+            //Rotates secondary arm up and down
+
+            double armPower = ARM_GAMEPAD.right_stick_y;
+            arm.setPower(armPower);
+
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
@@ -107,6 +121,7 @@ public class GoBuilda_Mecanum extends LinearOpMode {
             motorBackRight.setPower(backRightPower);
 
             telemetry.addData("Lift Position: ", liftEncoderPosition);
+            telemetry.update();
         }
     }
 }
