@@ -11,6 +11,10 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 @TeleOp
 public class DriverOperated2024 extends LinearOpMode {
+
+    private static final double MAX_LIFT_POSITION = 0.0;
+    private static final double MIN_LIFT_POSITION = 0.0;
+
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
     private DcMotor motorFrontRight;
@@ -19,11 +23,6 @@ public class DriverOperated2024 extends LinearOpMode {
     private DcMotor lift;
     private DcMotor arm;
     private DcMotor intake;
-    double liftEncoderPosition;
-    double liftPower;
-
-    private static final double MAX_LIFT_POSITION = 0.0;
-    private static final double MIN_LIFT_POSITION = 0.0;
 
 
 
@@ -35,6 +34,9 @@ public class DriverOperated2024 extends LinearOpMode {
         Gamepad ARM_GAMEPAD = gamepad2;
         Gamepad LIFT_GAMEPAD = gamepad2;
         Gamepad INTAKE_GAMEPAD = gamepad2;
+
+        double liftEncoderPosition;
+        double liftPower;
 
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
