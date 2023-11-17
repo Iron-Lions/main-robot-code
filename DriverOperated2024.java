@@ -76,13 +76,13 @@ public class DriverOperated2024 extends LinearOpMode {
             double rx = DRIVE_GAMEPAD.right_stick_x;
 
             liftEncoderPosition = lift.getCurrentPosition();
-            liftPower = LIFT_GAMEPAD.left_stick_y;
+            liftPower = -LIFT_GAMEPAD.left_stick_y;
 
-            if (liftEncoderPosition < MIN_LIFT_POSITION) {
-                lift.setPower(Math.max(LIFT_GAMEPAD.left_stick_y, 0));
+            if (liftEncoderPosition <= MIN_LIFT_POSITION) {
+                lift.setPower(Math.max(liftPower, 0));
             }
-            else if (liftEncoderPosition > MAX_LIFT_POSITION) {
-                lift.setPower(Math.min(LIFT_GAMEPAD.left_stick_y, 0));
+            else if (liftEncoderPosition >= MAX_LIFT_POSITION) {
+                lift.setPower(Math.min(liftPower, 0));
             }
             else {
                 lift.setPower(liftPower);
@@ -91,7 +91,7 @@ public class DriverOperated2024 extends LinearOpMode {
 
             //Rotates secondary arm up and down
 
-            double armPower = INTAKE_GAMEPAD.right_stick_y;
+            double armPower = ARM_GAMEPAD.right_stick_y;
             arm.setPower(armPower);
 
 
@@ -142,7 +142,8 @@ public class DriverOperated2024 extends LinearOpMode {
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
-            telemetry.addData("Lift Position: ", liftEncoderPosition);
+            telemetry.addData("Lift Position Ticks: ", liftEncoderPosition);
+            telemetry.addData("Lift Power: ", liftPower);
             telemetry.update();
         }
     }
