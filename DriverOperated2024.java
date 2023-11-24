@@ -37,6 +37,7 @@ public class DriverOperated2024 extends LinearOpMode {
 
         double liftEncoderPosition;
         double liftPower;
+        int check = 0;
 
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
@@ -94,8 +95,6 @@ public class DriverOperated2024 extends LinearOpMode {
             double armPower = ARM_GAMEPAD.right_stick_y;
             arm.setPower(armPower);
 
-
-            int check = 0;
             if(INTAKE_GAMEPAD.right_bumper && check!=1){
                 check = 1;
                 intake.setPower(check);
@@ -142,8 +141,9 @@ public class DriverOperated2024 extends LinearOpMode {
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
-            telemetry.addData("Lift Position Ticks: ", liftEncoderPosition);
-            telemetry.addData("Lift Power: ", liftPower);
+            telemetry.addData("Lift Position Ticks", liftEncoderPosition);
+            telemetry.addData("Lift Power", liftPower);
+            telemetry.addData("Intake", check);
             telemetry.update();
         }
     }
