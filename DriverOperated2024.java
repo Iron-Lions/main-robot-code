@@ -12,8 +12,12 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 @TeleOp
 public class DriverOperated2024 extends LinearOpMode {
 
-    private static final double MAX_LIFT_POSITION = 0.0;
+    //These are placeholders!!!!!!!!!!!!!!!!!!!!!!!!
+    private static final double MAX_LIFT_POSITION = 1000.0;
     private static final double MIN_LIFT_POSITION = 0.0;
+    
+    private static final double MAX_ARM_POSITION = 1000.0;
+    private static final double MIN_ARM_POSITION = 0.0;
 
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
@@ -37,7 +41,11 @@ public class DriverOperated2024 extends LinearOpMode {
 
         double liftEncoderPosition;
         double liftPower;
-        int check = 0;
+        double armEncoderPosition;
+        double armPower;
+        //What is this?|
+        int check1 = 0;
+        int check2 = 0;
 
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
@@ -46,7 +54,10 @@ public class DriverOperated2024 extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         lift = hardwareMap.dcMotor.get("lift");
         arm = hardwareMap.dcMotor.get("arm");
-
+        
+        
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -89,29 +100,35 @@ public class DriverOperated2024 extends LinearOpMode {
                 lift.setPower(liftPower);
             }
 
+            armEncoderPosition = arm.getCurrentPosition();
+            armPower = -ARM_GAMEPAD.right_stick_y;
 
-            //Rotates secondary arm up and down
-
-            double armPower = ARM_GAMEPAD.right_stick_y;
-            arm.setPower(armPower);
-
-            if(INTAKE_GAMEPAD.right_bumper && check!=1){
-                check = 1;
-                intake.setPower(check);
+            if (armEncoderPosition <= MIN_ARM_POSITION) {
+                arm.setPower(Math.max(armPower, 0));
             }
-            if(INTAKE_GAMEPAD.left_bumper && check!=-1){
-                check = -1;
-                intake.setPower(check);
+            else if (armEncoderPosition >= MAX_ARM_POSITION) {
+                arm.setPower(Math.min(armPower, 0));
             }
-            if(INTAKE_GAMEPAD.right_bumper && check == 1){
-                check = 0;
-                intake.setPower(check);
-            }
-            if(INTAKE_GAMEPAD.left_bumper && check == -1){
-                check = 0;
-                intake.setPower(check);
+            else {
+                arm.setPower(armPower);
             }
 
+
+            //You need to hold the bumpers to make it work
+            if(INTAKE_GAMEPAD.right_bumper){
+                check1 = 1;
+            } else {
+                check1 = 0;
+            }
+            if(INTAKE_GAMEPAD.left_bumper){
+                check2 = -1;
+            } else {
+                check2 = 0;
+            }
+            
+            intake.setPower(check1 + check2);
+            
+            
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
@@ -143,7 +160,10 @@ public class DriverOperated2024 extends LinearOpMode {
 
             telemetry.addData("Lift Position Ticks", liftEncoderPosition);
             telemetry.addData("Lift Power", liftPower);
-            telemetry.addData("Intake", check);
+            telemetry.addData("Arm Position Ticks", armEncoderPosition);
+            telemetry.addData("Arm Power", armPower);
+            telemetry.addData("check1: ", check1);
+            telemetry.addData("check2: ", check2);
             telemetry.update();
         }
     }
