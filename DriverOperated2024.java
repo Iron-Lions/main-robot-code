@@ -43,7 +43,6 @@ public class DriverOperated2024 extends LinearOpMode {
         double liftPower;
         double armEncoderPosition;
         double armPower;
-        //What is this?|
         int check1 = 0;
         int check2 = 0;
 
@@ -54,9 +53,6 @@ public class DriverOperated2024 extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         lift = hardwareMap.dcMotor.get("lift");
         arm = hardwareMap.dcMotor.get("arm");
-        
-        
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
