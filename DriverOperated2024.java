@@ -12,12 +12,13 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 @TeleOp
 public class DriverOperated2024 extends LinearOpMode {
 
-    //These are placeholders!!!!!!!!!!!!!!!!!!!!!!!!
+    //These are all placeholders!!!!!!!!!!!!!!!!!!!!!!!!
     private static final double MAX_LIFT_POSITION = 1000.0;
     private static final double MIN_LIFT_POSITION = 0.0;
-    
     private static final double MAX_ARM_POSITION = 1000.0;
     private static final double MIN_ARM_POSITION = 0.0;
+    public static final double SERVO_LOWER = 0.509;
+    public static final double SERVO_UPPER = 0.795;
 
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
@@ -26,6 +27,7 @@ public class DriverOperated2024 extends LinearOpMode {
     private DcMotor lift;
     private DcMotor arm;
     private DcMotor intake;
+    private Servo dumpy_4;
     private IMU imu;
 
 
@@ -38,11 +40,13 @@ public class DriverOperated2024 extends LinearOpMode {
         Gamepad ARM_GAMEPAD = gamepad2;
         Gamepad LIFT_GAMEPAD = gamepad2;
         Gamepad INTAKE_GAMEPAD = gamepad2;
+        Gamepad SERVO_GAMEPAD = gamepad2;
 
         double liftEncoderPosition;
         double liftPower;
         double armEncoderPosition;
         double armPower;
+
         int check1 = 0;
         int check2 = 0;
 
@@ -53,6 +57,7 @@ public class DriverOperated2024 extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         lift = hardwareMap.dcMotor.get("lift");
         arm = hardwareMap.dcMotor.get("arm");
+        dumpy_4 = hardwareMap.servo.get("servo");
         
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -124,7 +129,13 @@ public class DriverOperated2024 extends LinearOpMode {
             
             intake.setPower(check1 + check2);
             
-            
+            if(SERVO_GAMEPAD.left_trigger){
+                dumpy_4.setPosition(SERVO_LOWER);
+            }
+
+            if(SERVO_GAMEPAD.right_trigger){
+                dumpy_4.setPosition(SERVO_UPPER);
+            }
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
