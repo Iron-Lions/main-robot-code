@@ -57,7 +57,7 @@ public class DriverOperated2024 extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         lift = hardwareMap.dcMotor.get("lift");
         arm = hardwareMap.dcMotor.get("arm");
-        dumpy_4 = hardwareMap.servo.get("servo");
+        dumpy_4 = hardwareMap.servo.get("dumpy_4");
 
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
