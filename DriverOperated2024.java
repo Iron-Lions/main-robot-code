@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,9 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp
+@TeleOp(name = "DriverOperated2024", group = "")
 public class DriverOperated2024 extends LinearOpMode {
 
     //These are placeholders!!!!!!!!!!!!!!!!!!!!!!!!
@@ -18,8 +18,8 @@ public class DriverOperated2024 extends LinearOpMode {
     private static final double MIN_LIFT_POSITION = 0.0;
     private static final double MAX_ARM_POSITION = 1000.0;
     private static final double MIN_ARM_POSITION = 0.0;
-    private static final double SERVO_LOWER = 0.509;
-    private static final double SERVO_UPPER = 0.795;
+    private static final double MAX_DUMPY_POSITION = 1.0;
+    private static final double MIN_DUMPY_POSITION = 0.0;
 
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
@@ -28,8 +28,8 @@ public class DriverOperated2024 extends LinearOpMode {
     private DcMotor lift;
     private DcMotor arm;
     private DcMotor intake;
-    private IMU imu;
     private Servo dumpy_4;
+    private IMU imu;
 
 
 
@@ -47,6 +47,7 @@ public class DriverOperated2024 extends LinearOpMode {
         double liftPower;
         double armEncoderPosition;
         double armPower;
+        double dumpy_4Position;
         int check1 = 0;
         int check2 = 0;
 
@@ -74,8 +75,8 @@ public class DriverOperated2024 extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+        RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
 
@@ -114,29 +115,31 @@ public class DriverOperated2024 extends LinearOpMode {
                 arm.setPower(armPower);
             }
 
-
             //You need to hold the bumpers to make it work
             if(INTAKE_GAMEPAD.right_bumper){
                 check1 = 1;
-            } else {
+            }
+            else {
                 check1 = 0;
             }
+
             if(INTAKE_GAMEPAD.left_bumper){
                 check2 = -1;
-            } else {
+            }
+            else {
                 check2 = 0;
             }
-
             intake.setPower(check1 + check2);
 
-            if(SERVO_GAMEPAD.left_trigger){
-                dumpy_4.setPosition(SERVO_LOWER);
+            dumpy_4Position = dumpy_4.getPosition();
+
+            if(SERVO_GAMEPAD.left_trigger > 0.5){
+                dumpy_4.setPosition(MAX_DUMPY_POSITION);
             }
 
-            if(SERVO_GAMEPAD.right_trigger){
-                dumpy_4.setPosition(SERVO_UPPER);
+            if(SERVO_GAMEPAD.right_trigger > 0.5){
+                dumpy_4.setPosition(MIN_DUMPY_POSITION);
             }
-
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
@@ -166,12 +169,13 @@ public class DriverOperated2024 extends LinearOpMode {
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
-            telemetry.addData("Lift Position Ticks", liftEncoderPosition);
+            telemetry.addData("Lift Position", liftEncoderPosition);
             telemetry.addData("Lift Power", liftPower);
-            telemetry.addData("Arm Position Ticks", armEncoderPosition);
+            telemetry.addData("Arm Position", armEncoderPosition);
             telemetry.addData("Arm Power", armPower);
-            telemetry.addData("check1: ", check1);
-            telemetry.addData("check2: ", check2);
+            telemetry.addData("check1", check1);
+            telemetry.addData("check2", check2);
+            telemetry.addData("dumpy_4 Position", dumpy_4Position);
             telemetry.update();
         }
     }
