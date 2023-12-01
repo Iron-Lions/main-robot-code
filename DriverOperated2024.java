@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-
+//Need this to use things from ftc java library
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -14,13 +14,15 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 public class DriverOperated2024 extends LinearOpMode {
 
     //These are placeholders!!!!!!!!!!!!!!!!!!!!!!!!
-    private static final double MAX_LIFT_POSITION = 1000.0;
-    private static final double MIN_LIFT_POSITION = 0.0;
-    private static final double MAX_ARM_POSITION = 1000.0;
-    private static final double MIN_ARM_POSITION = 0.0;
+    private static final double MAX_LIFT_POSITION = 0;
+    private static final double MIN_LIFT_POSITION = -3100.0;
+    private static final double MAX_ARM_POSITION = 750.0;
+    private static final double MIN_ARM_POSITION = -10000.0;
+    //Min and Max of dumpy (servo) are scaled between the right most (max) and left most (min) positions
     private static final double MAX_DUMPY_POSITION = 1.0;
-    private static final double MIN_DUMPY_POSITION = 0.0;
-
+    private static final double MIN_DUMPY_POSITION = 0.5;
+    
+    //declaring motors, servos, and imu
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
     private DcMotor motorFrontRight;
@@ -41,7 +43,7 @@ public class DriverOperated2024 extends LinearOpMode {
         Gamepad ARM_GAMEPAD = gamepad2;
         Gamepad LIFT_GAMEPAD = gamepad2;
         Gamepad INTAKE_GAMEPAD = gamepad2;
-        Gamepad SERVO_GAMEPAD = gamepad2;
+        Gamepad SERVO_GAMEPAD = gamepad1;
 
         double liftEncoderPosition;
         double liftPower;
@@ -50,7 +52,8 @@ public class DriverOperated2024 extends LinearOpMode {
         double dumpy_4Position;
         int check1 = 0;
         int check2 = 0;
-
+        
+        //Gets information from configuration on driverhub
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
@@ -59,10 +62,12 @@ public class DriverOperated2024 extends LinearOpMode {
         lift = hardwareMap.dcMotor.get("lift");
         arm = hardwareMap.dcMotor.get("arm");
         dumpy_4 = hardwareMap.servo.get("dumpy_4");
-
+        
+        //Allows us to determine position (encoders) and makes motors stop when unpowered
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -90,8 +95,9 @@ public class DriverOperated2024 extends LinearOpMode {
             double rx = DRIVE_GAMEPAD.right_stick_x;
 
             liftEncoderPosition = lift.getCurrentPosition();
-            liftPower = -LIFT_GAMEPAD.left_stick_y;
-
+            liftPower = LIFT_GAMEPAD.left_stick_y;
+            
+            //This code ensures the lift doesn't move too far and damage the robot
             if (liftEncoderPosition <= MIN_LIFT_POSITION) {
                 lift.setPower(Math.max(liftPower, 0));
             }
@@ -103,36 +109,39 @@ public class DriverOperated2024 extends LinearOpMode {
             }
 
             armEncoderPosition = arm.getCurrentPosition();
-            armPower = -ARM_GAMEPAD.right_stick_y;
-
+            armPower = -ARM_GAMEPAD.right_stick_y*0.25;
+            
+            //This code ensures the arm doesn't move too far and damage the robot
             if (armEncoderPosition <= MIN_ARM_POSITION) {
                 arm.setPower(Math.max(armPower, 0));
             }
             else if (armEncoderPosition >= MAX_ARM_POSITION) {
                 arm.setPower(Math.min(armPower, 0));
             }
-            else {
+            else if(liftEncoderPosition<=-2500){
                 arm.setPower(armPower);
             }
 
             //You need to hold the bumpers to make it work
             if(INTAKE_GAMEPAD.right_bumper){
-                check1 = 1;
+                check1 = -1;
             }
             else {
                 check1 = 0;
             }
 
             if(INTAKE_GAMEPAD.left_bumper){
-                check2 = -1;
+                check2 = 1;
             }
             else {
                 check2 = 0;
             }
             intake.setPower(check1 + check2);
-
+            
+            //This is to print out telemetry later
             dumpy_4Position = dumpy_4.getPosition();
-
+            
+            //Servo controls-can only move dumpy_4 to two locations
             if(SERVO_GAMEPAD.left_trigger > 0.5){
                 dumpy_4.setPosition(MAX_DUMPY_POSITION);
             }
@@ -163,12 +172,14 @@ public class DriverOperated2024 extends LinearOpMode {
             double backLeftPower = (rotY - rotX + rx) / denominator;
             double frontRightPower = (rotY - rotX - rx) / denominator;
             double backRightPower = (rotY + rotX - rx) / denominator;
-
+            
+            //Set power to wheels
             motorFrontLeft.setPower(frontLeftPower);
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
-
+            
+            //Telemetry prints data to driverhub
             telemetry.addData("Lift Position", liftEncoderPosition);
             telemetry.addData("Lift Power", liftPower);
             telemetry.addData("Arm Position", armEncoderPosition);
