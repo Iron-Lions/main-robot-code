@@ -40,18 +40,19 @@ public class DriverOperated2024 extends LinearOpMode {
         // Declare our motors
         // Make sure your ID's match your configuration
         Gamepad DRIVE_GAMEPAD = gamepad1;
+        Gamepad INTAKE_GAMEPAD = gamepad1;
         Gamepad ARM_GAMEPAD = gamepad2;
         Gamepad LIFT_GAMEPAD = gamepad2;
-        Gamepad INTAKE_GAMEPAD = gamepad2;
-        Gamepad SERVO_GAMEPAD = gamepad1;
+        Gamepad SERVO_GAMEPAD = gamepad2;
 
         double liftEncoderPosition;
         double liftPower;
         double armEncoderPosition;
         double armPower;
         double dumpy_4Position;
-        int check1 = 0;
-        int check2 = 0;
+        double check1 = 0;
+        double check2 = 0;
+        boolean encoderLimitArm = true;
         
         //Gets information from configuration on driverhub
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
@@ -124,14 +125,14 @@ public class DriverOperated2024 extends LinearOpMode {
 
             //You need to hold the bumpers to make it work
             if(INTAKE_GAMEPAD.right_bumper){
-                check1 = -1;
+                check1 = -0.75;
             }
             else {
                 check1 = 0;
             }
 
             if(INTAKE_GAMEPAD.left_bumper){
-                check2 = 1;
+                check2 = 0.75;
             }
             else {
                 check2 = 0;
