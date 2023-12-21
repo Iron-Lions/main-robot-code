@@ -37,7 +37,7 @@ public class TensorFlow extends LinearOpMode {
     private static final double MAX_DUMPY_POSITION = 1.0;
     private static final double MIN_DUMPY_POSITION = 0.5;
     private static final double LEFT_LINE = 150.0;
-    private static final double RIGHT_LINE = 500.0;
+    private static final double RIGHT_LINE = 300.0;
     private double x;
     private int objectNum = 0;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -91,10 +91,11 @@ public class TensorFlow extends LinearOpMode {
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
                 mecanumMoveBot(0, 0, 0);
+                
             }
             else if (x > LEFT_LINE && x < RIGHT_LINE) {
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(750);
+                sleep(1000);
                 mecanumMoveBot(0, 0, 0);
             }
             else if (x > RIGHT_LINE) {
