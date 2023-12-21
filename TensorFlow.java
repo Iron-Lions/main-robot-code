@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,7 +9,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
@@ -26,11 +24,10 @@ public class TensorFlow extends LinearOpMode {
     private DcMotor motorBackLeft;
     private DcMotor motorBackRight;
 
-    /*private DcMotor lift;
+    private DcMotor lift;
     private DcMotor arm;
     private DcMotor intake;
     private Servo dumpy_4;
-    private IMU imu;*/
 
     private static final double MOVE_SPEED = 0.5;
     private static final double MAX_LIFT_POSITION = 0;
@@ -43,8 +40,6 @@ public class TensorFlow extends LinearOpMode {
     private static final double LEFT_LINE = 150.0;
     private static final double RIGHT_LINE = 500.0;
     private double x;
-    private double y;
-    private double currentYaw;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
     // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
@@ -64,7 +59,7 @@ public class TensorFlow extends LinearOpMode {
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
-        /*intake = hardwareMap.dcMotor.get("intake");
+        intake = hardwareMap.dcMotor.get("intake");
         lift = hardwareMap.dcMotor.get("lift");
         arm = hardwareMap.dcMotor.get("arm");
         dumpy_4 = hardwareMap.servo.get("dumpy_4");
@@ -75,8 +70,8 @@ public class TensorFlow extends LinearOpMode {
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);*/
-        
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -84,30 +79,32 @@ public class TensorFlow extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            
-            
-            telemetryTfod();
+
+            while (opModeIsActive() && tfod.getRecognitions().size() == 0) {
+                telemetryTfod();
+            }
+
 
             if (x < LEFT_LINE) {
-                mecanumMoveBot(0, 0.5, 0);
+                mecanumMoveBot(0, MOVE_SPEED, 0);
                 sleep(500);
-                mecanumMoveBot(0.5, 0, 0);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
                 mecanumMoveBot(0, 0, 0);
             }
-            if (x > LEFT_LINE && x < RIGHT_LINE) {
-                mecanumMoveBot(0.5, 0, 0);
+            else if (x > LEFT_LINE && x < RIGHT_LINE) {
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
                 mecanumMoveBot(0, 0, 0);
             }
-            if (x > RIGHT_LINE) {
-                mecanumMoveBot(0, -0.5, 0);
+            else if (x > RIGHT_LINE) {
+                mecanumMoveBot(0, -MOVE_SPEED, 0);
                 sleep(500);
-                mecanumMoveBot(0.5, 0, 0);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
                 mecanumMoveBot(0, 0, 0);
             }
-            
+
 
         }
 
@@ -208,7 +205,7 @@ public class TensorFlow extends LinearOpMode {
         motorBackRight.setPower(BR_power);
     }
 
-    /*private void armMovement(double power, int targetPosition) {
+    private void armMovement(double power, int targetPosition) {
         if (targetPosition >= MAX_ARM_POSITION) {
             arm.setTargetPosition((int)MAX_ARM_POSITION);
             arm.setPower(power);
@@ -251,6 +248,6 @@ public class TensorFlow extends LinearOpMode {
         else {
             dumpy_4.setPosition(Math.max(targetPosition, MIN_DUMPY_POSITION));
         }
-    }*/
+    }
 
 }
