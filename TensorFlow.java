@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -40,6 +39,7 @@ public class TensorFlow extends LinearOpMode {
     private static final double LEFT_LINE = 150.0;
     private static final double RIGHT_LINE = 500.0;
     private double x;
+    private int objectNum;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
     // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
@@ -80,7 +80,7 @@ public class TensorFlow extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            while (opModeIsActive() && tfod.getRecognitions().size() == 0) {
+            while (opModeIsActive() && objectNum == 0) {
                 telemetryTfod();
             }
 
@@ -177,7 +177,8 @@ public class TensorFlow extends LinearOpMode {
     private void telemetryTfod() {
 
         List<Recognition> currentRecognitions = tfod.getRecognitions();
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
+        objectNum = currentRecognitions.size();
+        telemetry.addData("# Objects Detected", objectNum);
 
         // Step through the list of recognitions and display info for each one.
         for (Recognition recognition : currentRecognitions) {
