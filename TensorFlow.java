@@ -39,7 +39,7 @@ public class TensorFlow extends LinearOpMode {
     private static final double LEFT_LINE = 150.0;
     private static final double RIGHT_LINE = 500.0;
     private double x;
-    private int objectNum;
+    private int objectNum = 0;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
     // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
