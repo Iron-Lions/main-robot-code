@@ -220,10 +220,9 @@ public class Autonomous2023_24 extends LinearOpMode {
             strafe = Range.clip(-yawError * APRIL_TAG_STRAFE_GAIN, -APRIL_TAG_MAX_AUTO_STRAFE, APRIL_TAG_MAX_AUTO_STRAFE);
 
             telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+            aprilTagMoveBot(drive, strafe, turn);
+            telemetry.update();
         }
-        telemetry.update();
-
-        aprilTagMoveBot(drive, strafe, turn);
     }
 
     private void mecanumMoveBot(double FB_translation, double LR_translation, double rotation) {
