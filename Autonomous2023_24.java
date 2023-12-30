@@ -105,16 +105,22 @@ public class Autonomous2023_24 extends LinearOpMode {
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
                 mecanumMoveBot(0, 0, 0);
-                while (opModeIsActive() && rangeError != 0 && headingError != 0 && yawError != 0) {
-                    aprilTagDetectionMovement();
+                while (opModeIsActive() && detectedTagId != desiredTagId)  {
+                    aprilTagDetection();
+                }
+                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    aprilTagMovement();
                 }
             } else if (x > LEFT_LINE && x < RIGHT_LINE) {
                 desiredTagId = 5;
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(1000);
                 mecanumMoveBot(0, 0, 0);
-                while (opModeIsActive() && rangeError != 0 && headingError != 0 && yawError != 0) {
-                    aprilTagDetectionMovement();
+                while (opModeIsActive() && detectedTagId != desiredTagId)  {
+                    aprilTagDetection();
+                }
+                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    aprilTagMovement();
                 }
             } else if (x > RIGHT_LINE) {
                 desiredTagId = 6;
@@ -123,8 +129,11 @@ public class Autonomous2023_24 extends LinearOpMode {
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
                 mecanumMoveBot(0, 0, 0);
-                while (opModeIsActive() && rangeError != 0 && headingError != 0 && yawError != 0) {
-                    aprilTagDetectionMovement();
+                while (opModeIsActive() && detectedTagId != desiredTagId)  {
+                    aprilTagDetection();
+                }
+                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    aprilTagMovement();
                 }
             }
         }
@@ -187,7 +196,7 @@ public class Autonomous2023_24 extends LinearOpMode {
         }
     }
 
-    private void aprilTagDetectionMovement() {
+    private void aprilTagDetection() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
@@ -203,26 +212,26 @@ public class Autonomous2023_24 extends LinearOpMode {
             }
             detectedTagId = detection.id;
         }
+    }
 
-        if (targetFound) {
-            telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-            telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
-            telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
-            telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
-            sleep(1000);
+    private void aprilTagMovement() {
+        telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
+        telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
+        telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
+        telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
+        sleep(1000);
 
-            double rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-            double headingError = desiredTag.ftcPose.bearing;
-            double yawError = desiredTag.ftcPose.yaw;
+        double rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+        double headingError = desiredTag.ftcPose.bearing;
+        double yawError = desiredTag.ftcPose.yaw;
 
-            drive = Range.clip(rangeError * APRIL_TAG_SPEED_GAIN, -APRIL_TAG_MAX_AUTO_SPEED, APRIL_TAG_MAX_AUTO_SPEED);
-            turn = Range.clip(headingError * APRIL_TAG_TURN_GAIN, -APRIL_TAG_MAX_AUTO_TURN, APRIL_TAG_MAX_AUTO_TURN) ;
-            strafe = Range.clip(-yawError * APRIL_TAG_STRAFE_GAIN, -APRIL_TAG_MAX_AUTO_STRAFE, APRIL_TAG_MAX_AUTO_STRAFE);
+        drive = Range.clip(rangeError * APRIL_TAG_SPEED_GAIN, -APRIL_TAG_MAX_AUTO_SPEED, APRIL_TAG_MAX_AUTO_SPEED);
+        turn = Range.clip(headingError * APRIL_TAG_TURN_GAIN, -APRIL_TAG_MAX_AUTO_TURN, APRIL_TAG_MAX_AUTO_TURN) ;
+        strafe = Range.clip(-yawError * APRIL_TAG_STRAFE_GAIN, -APRIL_TAG_MAX_AUTO_STRAFE, APRIL_TAG_MAX_AUTO_STRAFE);
 
-            telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
-            aprilTagMoveBot(drive, strafe, turn);
-            telemetry.update();
-        }
+        telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+        aprilTagMoveBot(drive, strafe, turn);
+        telemetry.update();
     }
 
     private void mecanumMoveBot(double FB_translation, double LR_translation, double rotation) {
