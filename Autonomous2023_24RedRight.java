@@ -17,7 +17,7 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
 
-@Autonomous(name = "Autonomous2023_24", group = "")
+@Autonomous(name = "Autonomous2023_24RedRight", group = "")
 public class Autonomous2023_24 extends LinearOpMode {
 
     private DcMotor motorFrontRight;
