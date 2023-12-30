@@ -18,7 +18,7 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import java.util.List;
 
 @Autonomous(name = "Autonomous2023_24RedRight", group = "")
-public class Autonomous2023_24 extends LinearOpMode {
+public class Autonomous2023_24RedRight extends LinearOpMode {
 
     private DcMotor motorFrontRight;
     private DcMotor motorFrontLeft;
@@ -104,10 +104,14 @@ public class Autonomous2023_24 extends LinearOpMode {
                 sleep(500);
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
-                mecanumMoveBot(0, 0, 0);
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(1000); //Needs to be tuned
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(500); // Needs to be tuned
                 while (opModeIsActive() && detectedTagId != desiredTagId)  {
                     aprilTagDetection();
                 }
+                //While loop conditions need to be reviewed
                 while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
                     aprilTagMovement();
                 }
@@ -115,7 +119,10 @@ public class Autonomous2023_24 extends LinearOpMode {
                 desiredTagId = 5;
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(1000);
-                mecanumMoveBot(0, 0, 0);
+                mecanumMoveBot(-MOVE_SPEED, 0, 0);
+                sleep(500); // Needs to be tuned
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(1000); // Needs to be tuned
                 while (opModeIsActive() && detectedTagId != desiredTagId)  {
                     aprilTagDetection();
                 }
@@ -128,7 +135,8 @@ public class Autonomous2023_24 extends LinearOpMode {
                 sleep(500);
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(750);
-                mecanumMoveBot(0, 0, 0);
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(1000); //Needs to be tuned
                 while (opModeIsActive() && detectedTagId != desiredTagId)  {
                     aprilTagDetection();
                 }
