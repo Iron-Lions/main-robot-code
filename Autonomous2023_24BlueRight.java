@@ -41,7 +41,7 @@ public class Autonomous2023_24BlueRight extends LinearOpMode {
     private int objectNum = 0;
     private static final boolean USE_WEBCAM = true;
     private WebcamName webcam1;
-    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/TeamPropRed.tflite";
+    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/TeamPropRed.tflite"; // Need to change to blue Prop
     private static final String[] LABELS = {
             "Team Prop",
     };
@@ -99,43 +99,105 @@ public class Autonomous2023_24BlueRight extends LinearOpMode {
             }
 
             if (x < LEFT_LINE) {
-                desiredTagId = 1;
+                //Tensorflow
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200);
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(940);
+                mecanumMoveBot(0, 0, 0);
+
+                //Drop the pixel
+
+                //Face Backdrop
+                mecanumMoveBot(0, 0, -MOVE_SPEED);
+                sleep(940);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200);
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(940);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(3500);
                 mecanumMoveBot(0, MOVE_SPEED, 0);
-                sleep(500);
-                mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(750);
+                sleep(1250);
                 mecanumMoveBot(0, 0, 0);
-                
+
+                //April Tags
+                desiredTagId = 1;
                 while (opModeIsActive() && detectedTagId != desiredTagId)  {
                     aprilTagDetection();
                 }
                 while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    // May need to add tolerance. Math.abs(error) > tolerance
                     aprilTagMovement();
                 }
-            } else if (x > LEFT_LINE && x < RIGHT_LINE) {
+
+                // Place pixel on backdrop
+            }
+            if (x > LEFT_LINE && x < RIGHT_LINE) {
+                //Tensorflow
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200);
+                mecanumMoveBot(0, 0, 0);
+
+                //Drop Pixel
+
+                //Face backdrop
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200);
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(940);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(3500);
+                mecanumMoveBot(0, MOVE_SPEED, 0);
+                sleep(1250);
+                mecanumMoveBot(0, 0, 0);
+
+                // April Tags
                 desiredTagId = 2;
-                mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1000);
-                mecanumMoveBot(0, 0, 0);
                 while (opModeIsActive() && detectedTagId != desiredTagId)  {
                     aprilTagDetection();
                 }
                 while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    // May need to add tolerance. Math.abs(error) > tolerance
                     aprilTagMovement();
                 }
-            } else if (x > RIGHT_LINE) {
+
+                // Place pixel on backdrop
+            }
+            if (x > RIGHT_LINE) {
+                // Tensorflow
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200);
+                mecanumMoveBot(0, 0, -MOVE_SPEED);
+                sleep(940);
+                mecanumMoveBot(0, 0, 0);
+
+                //Drop Pixel
+
+                //Face the backdrop
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(940);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200);
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(940);
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(3500);
+                mecanumMoveBot(0, MOVE_SPEED, 0);
+                sleep(1250);
+                mecanumMoveBot(0, 0, 0);
+
+                //April Tags
                 desiredTagId = 3;
-                mecanumMoveBot(0, -MOVE_SPEED, 0);
-                sleep(500);
-                mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(750);
-                mecanumMoveBot(0, 0, 0);
                 while (opModeIsActive() && detectedTagId != desiredTagId)  {
                     aprilTagDetection();
                 }
                 while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    // May need to add tolerance. Math.abs(error) > tolerance
                     aprilTagMovement();
                 }
+
+                //Place Pixel on backdrop
             }
         }
 

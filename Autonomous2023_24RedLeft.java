@@ -99,43 +99,104 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
             }
 
             if (x < LEFT_LINE) {
-                desiredTagId = 4;
-                mecanumMoveBot(0, MOVE_SPEED, 0);
-                sleep(500);
+                // Tensorflow
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(750);
+                sleep(1200); // Tuning
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(940); // Tuning
                 mecanumMoveBot(0, 0, 0);
-                
-                while (opModeIsActive() && detectedTagId != desiredTagId)  {
-                    aprilTagDetection();
-                }
-                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
-                    aprilTagMovement();
-                }
-            } else if (x > LEFT_LINE && x < RIGHT_LINE) {
-                desiredTagId = 5;
+
+                // Drop pixel
+
+                //Face Backdrop
+                mecanumMoveBot(0, 0, -MOVE_SPEED);
+                sleep(940); // Tuning
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1000);
-                mecanumMoveBot(0, 0, 0);
-                while (opModeIsActive() && detectedTagId != desiredTagId)  {
-                    aprilTagDetection();
-                }
-                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
-                    aprilTagMovement();
-                }
-            } else if (x > RIGHT_LINE) {
-                desiredTagId = 6;
+                sleep(1200); // Tuning
+                mecanumMoveBot(0, 0, -MOVE_SPEED);
+                sleep(940); // Tuning
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(3500); // Tuning
                 mecanumMoveBot(0, -MOVE_SPEED, 0);
-                sleep(500);
-                mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(750);
+                sleep(1250); // Tuning
                 mecanumMoveBot(0, 0, 0);
+
+                // April Tags
+                desiredTagId = 4;
                 while (opModeIsActive() && detectedTagId != desiredTagId)  {
                     aprilTagDetection();
                 }
                 while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    // May need to add tolerance. Math.abs(error) > tolerance
                     aprilTagMovement();
                 }
+
+                // Place pixel on backdrop
+            }
+            if (x > LEFT_LINE && x < RIGHT_LINE) {
+                // Tensorflow
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200); // Tuning
+                mecanumMoveBot(0, 0, 0);
+
+                // Drop pixel
+
+                // Face Backdrop
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200); // Tuning
+                mecanumMoveBot(0, 0, -MOVE_SPEED);
+                sleep(940); // Tuning
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(3500); // Tuning
+                mecanumMoveBot(0, -MOVE_SPEED, 0);
+                sleep(1250); // Tuning
+                mecanumMoveBot(0, 0, 0);
+
+                // April Tags
+                desiredTagId = 5;
+                while (opModeIsActive() && detectedTagId != desiredTagId)  {
+                    aprilTagDetection();
+                }
+                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    // May need to add tolerance. Math.abs(error) > tolerance
+                    aprilTagMovement();
+                }
+
+                // Place pixel on backdrop
+            }
+            if (x > RIGHT_LINE) {
+                // Tensorflow
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200); // Tuning
+                mecanumMoveBot(0, 0, -MOVE_SPEED);
+                sleep(940); // Tuning
+                mecanumMoveBot(0, 0, 0);
+
+                // Drop pixel
+
+                mecanumMoveBot(0, 0, MOVE_SPEED);
+                sleep(940); // Tuning
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(1200); // Tuning
+                mecanumMoveBot(0, 0, -MOVE_SPEED);
+                sleep(940); // Tuning
+                mecanumMoveBot(MOVE_SPEED, 0, 0);
+                sleep(3500); // Tuning
+                mecanumMoveBot(0, -MOVE_SPEED, 0);
+                sleep(1250); // Tuning
+                mecanumMoveBot(0, 0, 0);
+
+                // April Tags
+                desiredTagId = 6;
+                while (opModeIsActive() && detectedTagId != desiredTagId)  {
+                    aprilTagDetection();
+                }
+                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    // May need to add tolerance. Math.abs(error) > tolerance
+                    aprilTagMovement();
+                }
+
+                // Place pixel on backdrop
             }
         }
 
