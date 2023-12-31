@@ -112,13 +112,13 @@ public class Autonomous2023_24BlueRight extends LinearOpMode {
                 mecanumMoveBot(0, 0, -MOVE_SPEED);
                 sleep(940);
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1200);
+                sleep(1000);
                 mecanumMoveBot(0, 0, MOVE_SPEED);
                 sleep(940);
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(3500);
                 mecanumMoveBot(0, MOVE_SPEED, 0);
-                sleep(1250);
+                sleep(1050);
                 mecanumMoveBot(0, 0, 0);
 
                 //April Tags
@@ -143,13 +143,13 @@ public class Autonomous2023_24BlueRight extends LinearOpMode {
 
                 //Face backdrop
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1200);
+                sleep(100);
                 mecanumMoveBot(0, 0, MOVE_SPEED);
                 sleep(940);
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(3500);
                 mecanumMoveBot(0, MOVE_SPEED, 0);
-                sleep(1250);
+                sleep(1050);
                 mecanumMoveBot(0, 0, 0);
 
                 // April Tags
@@ -178,13 +178,13 @@ public class Autonomous2023_24BlueRight extends LinearOpMode {
                 mecanumMoveBot(0, 0, MOVE_SPEED);
                 sleep(940);
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1200);
+                sleep(1000);
                 mecanumMoveBot(0, 0, MOVE_SPEED);
                 sleep(940);
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(3500);
                 mecanumMoveBot(0, MOVE_SPEED, 0);
-                sleep(1250);
+                sleep(1050);
                 mecanumMoveBot(0, 0, 0);
 
                 //April Tags

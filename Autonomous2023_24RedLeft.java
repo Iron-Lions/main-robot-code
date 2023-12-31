@@ -112,13 +112,13 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
                 mecanumMoveBot(0, 0, -MOVE_SPEED);
                 sleep(940); // Tuning
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1200); // Tuning
+                sleep(1000); // Tuning
                 mecanumMoveBot(0, 0, -MOVE_SPEED);
                 sleep(940); // Tuning
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(3500); // Tuning
                 mecanumMoveBot(0, -MOVE_SPEED, 0);
-                sleep(1250); // Tuning
+                sleep(1050); // Tuning
                 mecanumMoveBot(0, 0, 0);
 
                 // April Tags
@@ -143,13 +143,13 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
 
                 // Face Backdrop
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1200); // Tuning
+                sleep(1000); // Tuning
                 mecanumMoveBot(0, 0, -MOVE_SPEED);
                 sleep(940); // Tuning
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(3500); // Tuning
                 mecanumMoveBot(0, -MOVE_SPEED, 0);
-                sleep(1250); // Tuning
+                sleep(1050); // Tuning
                 mecanumMoveBot(0, 0, 0);
 
                 // April Tags
@@ -177,13 +177,13 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
                 mecanumMoveBot(0, 0, MOVE_SPEED);
                 sleep(940); // Tuning
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
-                sleep(1200); // Tuning
+                sleep(1000); // Tuning
                 mecanumMoveBot(0, 0, -MOVE_SPEED);
                 sleep(940); // Tuning
                 mecanumMoveBot(MOVE_SPEED, 0, 0);
                 sleep(3500); // Tuning
                 mecanumMoveBot(0, -MOVE_SPEED, 0);
-                sleep(1250); // Tuning
+                sleep(1050); // Tuning
                 mecanumMoveBot(0, 0, 0);
 
                 // April Tags
