@@ -1,299 +1,119 @@
-/* Copyright (c) 2023 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-/*
- * This OpMode illustrates using a camera to locate and drive towards a specific AprilTag.
- * The code assumes a Holonomic (Mecanum or X Drive) Robot.
- *
- * For an introduction to AprilTags, see the ftc-docs link below:
- * https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_intro/apriltag-intro.html
- *
- * When an AprilTag in the TagLibrary is detected, the SDK provides location and orientation of the tag, relative to the camera.
- * This information is provided in the "ftcPose" member of the returned "detection", and is explained in the ftc-docs page linked below.
- * https://ftc-docs.firstinspires.org/apriltag-detection-values
- *
- * The drive goal is to rotate to keep the Tag centered in the camera, while strafing to be directly in front of the tag, and
- * driving towards the tag to achieve the desired distance.
- * To reduce any motion blur (which will interrupt the detection process) the Camera exposure is reduced to a very low value (5mS)
- * You can determine the best Exposure and Gain values by using the ConceptAprilTagOptimizeExposure OpMode in this Samples folder.
- *
- * The code assumes a Robot Configuration with motors named: leftfront_drive and rightfront_drive, leftback_drive and rightback_drive.
- * The motor directions must be set so a positive power goes forward on all wheels.
- * This sample assumes that the current game AprilTag Library (usually for the current season) is being loaded by default,
- * so you should choose to approach a valid tag ID (usually starting at 0)
- *
- * Under manual control, the left stick will move forward/back & left/right.  The right stick will rotate the robot.
- * Manually drive the robot until it displays Target data on the Driver Station.
- *
- * Press and hold the *Left Bumper* to enable the automatic "Drive to target" mode.
- * Release the Left Bumper to return to manual driving mode.
- *
- * Under "Drive To Target" mode, the robot has three goals:
- * 1) Turn the robot to always keep the Tag centered on the camera frame. (Use the Target Bearing to turn the robot.)
- * 2) Strafe the robot towards the centerline of the Tag, so it approaches directly in front  of the tag.  (Use the Target Yaw to strafe the robot)
- * 3) Drive towards the Tag to get to the desired distance.  (Use Tag Range to drive the robot forward/backward)
- *
- * Use DESIRED_DISTANCE to set how close you want the robot to get to the target.
- * Speed and Turn sensitivity can be adjusted using the SPEED_GAIN, STRAFE_GAIN and TURN_GAIN constants.
- *
- * Use Android Studio to Copy this Class, and Paste it into the TeamCode/src/main/java/org/firstinspires/ftc/teamcode folder.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
- *
- */
+@Autonomous(name = "AprilTagTest", group = "")
+public class AprilTagTest extends LinearOpMode {
 
-@TeleOp(name="Omni Drive To AprilTag", group = "")
-@Disabled
-public class AprilTagTest extends LinearOpMode
-{
-    // Adjust these numbers to suit your robot.
-    final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
+    private DcMotor motorFrontRight;
+    private DcMotor motorFrontLeft;
+    private DcMotor motorBackLeft;
+    private DcMotor motorBackRight;
+    private DcMotor lift;
+    private DcMotor arm;
+    private DcMotor intake;
+    private Servo dumpy_4;
+    private static final double MOVE_SPEED = 0.5;
+    private static final double MAX_LIFT_POSITION = 0;
+    private static final double MIN_LIFT_POSITION = -3100.0;
+    private static final double MAX_ARM_POSITION = 750.0;
+    private static final double MIN_ARM_POSITION = -10000.0;
+    private static final double MAX_DUMPY_POSITION = 1.0;
+    private static final double MIN_DUMPY_POSITION = 0.5;
+    private static final double LEFT_LINE = 150.0;
+    private static final double RIGHT_LINE = 300.0;
+    private double x;
+    private int objectNum = 0;
+    private static final boolean USE_WEBCAM = true;
+    private WebcamName webcam1;
+    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/TeamPropRed.tflite";
+    private static final String[] LABELS = {
+            "Team Prop",
+    };
+    private static final double DESIRED_DISTANCE = 12.0;
+    private static final double APRIL_TAG_SPEED_GAIN = 0.02;
+    private static final double APRIL_TAG_STRAFE_GAIN = 0.015;
+    private static final double APRIL_TAG_TURN_GAIN = 0.01;
+    private static final double APRIL_TAG_MAX_AUTO_SPEED = 0.5;
+    private static final double APRIL_TAG_MAX_AUTO_STRAFE = 0.5;
+    private static final double APRIL_TAG_MAX_AUTO_TURN = 0.3;
+    private int desiredTagId = 4;
+    private AprilTagProcessor aprilTag;
+    private AprilTagDetection desiredTag = null;
+    private int detectedTagId = -1;
+    private boolean targetFound = false;
+    private double drive = 0;
+    private double strafe = 0;
+    private double turn = 0;
+    double rangeError = -1;
+    private double headingError = -1;
+    private double yawError = -1;
+    private VisionPortal visionPortal;
+    
+    @Override
+    public void runOpMode() {
+        motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
+        motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
+        motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
+        motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        intake = hardwareMap.dcMotor.get("intake");
+        lift = hardwareMap.dcMotor.get("lift");
+        arm = hardwareMap.dcMotor.get("arm");
+        dumpy_4 = hardwareMap.servo.get("dumpy_4");
+        webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
 
-    //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
-    //  applied to the drive motors to correct the error.
-    //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-    final double MAX_AUTO_SPEED = 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_STRAFE= 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-    private DcMotor leftFrontDrive   = null;  //  Used to control the left front drive wheel
-    private DcMotor rightFrontDrive  = null;  //  Used to control the right front drive wheel
-    private DcMotor leftBackDrive    = null;  //  Used to control the left back drive wheel
-    private DcMotor rightBackDrive   = null;  //  Used to control the right back drive wheel
+        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-    private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
-    private static int desiredTagID = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
-    private VisionPortal visionPortal;               // Used to manage the video source.
-    private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
-    private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
-
-    @Override public void runOpMode()
-    {
-        boolean targetFound     = false;    // Set to true when an AprilTag target is detected
-        double  drive           = 0.5;        // Desired forward power/speed (-1 to +1)
-        double  strafe          = 0.5;        // Desired strafe power/speed (-1 to +1)
-        double  turn            = 0.5;        // Desired turning power/speed (-1 to +1)
-
-        // Initialize the Apriltag Detection process
         initAprilTag();
-
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must match the names assigned during the robot configuration.
-        // step (using the FTC Robot Controller app on the phone).
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "Front_Left");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "Front_Right");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "Back_Left");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "Back_Right");
-
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-
-        if (USE_WEBCAM)
-            setManualExposure(6, 250);  // Use low exposure time to reduce motion blur
-
-        // Wait for driver to press start
-        telemetry.addData("Camera preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch Play to start OpMode");
-        telemetry.update();
         waitForStart();
 
-        while (opModeIsActive())
-        {
-            targetFound = false;
-            desiredTag  = null;
-
-            // Step through the list of detected tags and look for a matching tag
-            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-            for (AprilTagDetection detection : currentDetections) {
-                // Look to see if we have size info on this tag.
-                if (detection.metadata != null) {
-                    //  Check to see if we want to track towards this tag.
-                    if ((desiredTagID < 0) || (detection.id == desiredTagID)) {
-                        // Yes, we want to use this tag.
-                        targetFound = true;
-                        desiredTag = detection;
-                        break;  // don't look any further.
-                    } else {
-                        // This tag is in the library, but we do not want to track it right now.
-                        telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
-                    }
-                } else {
-                    // This tag is NOT in the library, so we don't have enough information to track to it.
-                    telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
+        if (opModeIsActive()) {
+             //desiredTagId = 4;
+                while (opModeIsActive() && detectedTagId != desiredTagId)  {
+                    aprilTagDetection();
                 }
-            }
-
-            // Tell the driver what we see, and what to do.
-            if (targetFound) {
-                telemetry.addData("\n>","HOLD Left-Bumper to Drive to Target\n");
-                telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-                telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
-                telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
-                telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
-            } else {
-                telemetry.addData("\n>","Drive using joysticks to find valid target\n");
-            }
-            
-            //This is test code we are adding
-            /*
-            This will need to be implemented later with something like this:
-            if(left){
-                desiredTagID = 4;
-            }
-            if(center){
-                desiredTagID = 5;
-            }
-            if(right){
-                desiredTagID = 6;
-            }
-            */
-            desiredTagID = 6;
-            if (desiredTagID == 6){
-                telemetry.addData("\n>","HOLD Left-Bumper to Drive to Target\n");
-                telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-                telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
-                telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
-                telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
-                moveRobot(drive, strafe, turn);
-                sleep(10);
-            }
-            // If Left Bumper is being pressed, AND we have found the desired target, Drive to target Automatically .
-            if (gamepad1.left_bumper && targetFound) {
-
-                // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
-                double  rangeError      = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-                double  headingError    = desiredTag.ftcPose.bearing;
-                double  yawError        = desiredTag.ftcPose.yaw;
-
-                // Use the speed and turn "gains" to calculate how we want the robot to move.
-                drive  = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-                turn   = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN) ;
-                strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
-
-                telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
-            } else {
-
-                // drive using manual POV Joystick mode.  Slow things down to make the robot more controlable.
-                drive  = -gamepad1.left_stick_y  / 2.0;  // Reduce drive rate to 50%.
-                strafe = -gamepad1.left_stick_x  / 2.0;  // Reduce strafe rate to 50%.
-                turn   = -gamepad1.right_stick_x / 3.0;  // Reduce turn rate to 33%.
-                telemetry.addData("Manual","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
-            }
-            telemetry.update();
-
-            // Apply desired axes motions to the drivetrain.
-            moveRobot(drive, strafe, turn);
-            sleep(10);
-        }
-    }
-
-    /**
-     * Move robot according to desired axes motions
-     * <p>
-     * Positive X is forward
-     * <p>
-     * Positive Y is strafe left
-     * <p>
-     * Positive Yaw is counter-clockwise
-     */
-    public void moveRobot(double x, double y, double yaw) {
-        // Calculate wheel powers.
-        double leftFrontPower    =  x -y -yaw;
-        double rightFrontPower   =  x +y +yaw;
-        double leftBackPower     =  x +y -yaw;
-        double rightBackPower    =  x -y +yaw;
-
-        // Normalize wheel powers to be less than 1.0
-        double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-        max = Math.max(max, Math.abs(leftBackPower));
-        max = Math.max(max, Math.abs(rightBackPower));
-
-        if (max > 1.0) {
-            leftFrontPower /= max;
-            rightFrontPower /= max;
-            leftBackPower /= max;
-            rightBackPower /= max;
+                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                    // May need to add tolerance. Math.abs(error) > tolerance
+                    aprilTagMovement();
+                    telemetry.update();
+                }
+            visionPortal.close();
         }
 
-        // Send powers to the wheels.
-        leftFrontDrive.setPower(leftFrontPower);
-        rightFrontDrive.setPower(rightFrontPower);
-        leftBackDrive.setPower(leftBackPower);
-        rightBackDrive.setPower(rightBackPower);
     }
 
-    /**
-     * Initialize the AprilTag processor.
-     */
+   
     private void initAprilTag() {
-        // Create the AprilTag processor by using a builder.
         aprilTag = new AprilTagProcessor.Builder().build();
-
-        // Adjust Image Decimation to trade-off detection-range for detection-rate.
-        // eg: Some typical detection data using a Logitech C920 WebCam
-        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
-        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
-        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second
-        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second
-        // Note: Decimation can be changed on-the-fly to adapt during a match.
         aprilTag.setDecimation(2);
 
-        // Create the vision portal by using a builder.
         if (USE_WEBCAM) {
             visionPortal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                    .setCamera(webcam1)
                     .addProcessor(aprilTag)
                     .build();
         } else {
@@ -304,41 +124,118 @@ public class AprilTagTest extends LinearOpMode
         }
     }
 
-    /*
-     Manually set the camera gain and exposure.
-     This can only be called AFTER calling initAprilTag(), and only works for Webcams;
-    */
-    private void    setManualExposure(int exposureMS, int gain) {
-        // Wait for the camera to be open, then use the controls
+    private void aprilTagDetection() {
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        for (AprilTagDetection detection : currentDetections) {
+            if (detection.metadata != null) {
+                if ((desiredTagId < 0) || (detection.id == desiredTagId)) {
+                    targetFound = true;
+                    desiredTag = detection;
+                    break;
+                } else {
+                    telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                }
+            } else {
+                telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
+            }
+            detectedTagId = detection.id;
+        }
+        telemetry.update();
+    }
 
-        if (visionPortal == null) {
-            return;
+    private void aprilTagMovement() {
+        telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
+        telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
+        telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
+        telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
+
+        double rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+        double headingError = desiredTag.ftcPose.bearing;
+        double yawError = desiredTag.ftcPose.yaw;
+
+        drive = Range.clip(rangeError * APRIL_TAG_SPEED_GAIN, -APRIL_TAG_MAX_AUTO_SPEED, APRIL_TAG_MAX_AUTO_SPEED);
+        turn = Range.clip(headingError * APRIL_TAG_TURN_GAIN, -APRIL_TAG_MAX_AUTO_TURN, APRIL_TAG_MAX_AUTO_TURN) ;
+        strafe = Range.clip(-yawError * APRIL_TAG_STRAFE_GAIN, -APRIL_TAG_MAX_AUTO_STRAFE, APRIL_TAG_MAX_AUTO_STRAFE);
+
+        telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+        aprilTagMoveBot(drive, strafe, turn);
+        telemetry.update();
+    }
+
+    private void mecanumMoveBot(double FB_translation, double LR_translation, double rotation) {
+        double FL_power = FB_translation + LR_translation + rotation;
+        double BL_power = FB_translation - LR_translation + rotation;
+        double FR_power = FB_translation - LR_translation - rotation;
+        double BR_power = FB_translation + LR_translation - rotation;
+
+        motorFrontLeft.setPower(FL_power);
+        motorBackLeft.setPower(BL_power);
+        motorFrontRight.setPower(FR_power);
+        motorBackRight.setPower(BR_power);
+    }
+
+    public void aprilTagMoveBot(double x, double y, double yaw) {
+        double frontLeftPower =  x - y - yaw;
+        double frontRightPower =  x + y + yaw;
+        double backLeftPower =  x + y - yaw;
+        double backRightPower =  x - y + yaw;
+
+        double max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
+        max = Math.max(max, Math.abs(backLeftPower));
+        max = Math.max(max, Math.abs(backRightPower));
+
+        if (max > 1.0) {
+            frontLeftPower /= max;
+            frontRightPower /= max;
+            backLeftPower /= max;
+            backRightPower /= max;
         }
 
-        // Make sure camera is streaming before we try to set the exposure controls
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            telemetry.addData("Camera", "Waiting");
-            telemetry.update();
-            while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
-                sleep(20);
-            }
-            telemetry.addData("Camera", "Ready");
-            telemetry.update();
-        }
+        motorFrontLeft.setPower(frontLeftPower);
+        motorFrontRight.setPower(frontRightPower);
+        motorBackLeft.setPower(backLeftPower);
+        motorBackRight.setPower(backRightPower);
+    }
 
-        // Set camera controls unless we are stopping.
-        if (!isStopRequested())
-        {
-            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
-            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
-                exposureControl.setMode(ExposureControl.Mode.Manual);
-                sleep(50);
-            }
-            exposureControl.setExposure((long)exposureMS, TimeUnit.MILLISECONDS);
-            sleep(20);
-            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
-            gainControl.setGain(gain);
-            sleep(20);
+    private void armMovement(double power, int targetPosition) {
+        if (targetPosition >= MAX_ARM_POSITION) {
+            arm.setTargetPosition((int)MAX_ARM_POSITION);
+            arm.setPower(power);
+        }
+        if (targetPosition <= MIN_ARM_POSITION) {
+            arm.setTargetPosition((int) MIN_ARM_POSITION);
+            arm.setPower(power);
+        } else {
+            arm.setTargetPosition(targetPosition);
+            arm.setPower(power);
+        }
+    }
+
+    private void liftMovement(double power, int targetPosition) {
+        if (targetPosition >= MAX_LIFT_POSITION) {
+            lift.setTargetPosition((int) MAX_LIFT_POSITION);
+            lift.setPower(power);
+        }
+        if (targetPosition <= MIN_LIFT_POSITION) {
+            lift.setTargetPosition((int) MIN_LIFT_POSITION);
+            lift.setPower(power);
+        } else {
+            lift.setTargetPosition(targetPosition);
+            lift.setPower(power);
+        }
+    }
+
+    private void intakeMovement(double power, double setTime) {
+        intake.setPower(power);
+        sleep((long) setTime);
+        intake.setPower(0);
+    }
+
+    private void dumpy_4Movement(double targetPosition) {
+        if (targetPosition >= MAX_DUMPY_POSITION) {
+            dumpy_4.setPosition(MAX_DUMPY_POSITION);
+        } else {
+            dumpy_4.setPosition(Math.max(targetPosition, MIN_DUMPY_POSITION));
         }
     }
 }
