@@ -9,11 +9,9 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
 
@@ -28,23 +26,14 @@ public class AprilTagTest extends LinearOpMode {
     private DcMotor arm;
     private DcMotor intake;
     private Servo dumpy_4;
-    private static final double MOVE_SPEED = 0.5;
     private static final double MAX_LIFT_POSITION = 0;
     private static final double MIN_LIFT_POSITION = -3100.0;
     private static final double MAX_ARM_POSITION = 750.0;
     private static final double MIN_ARM_POSITION = -10000.0;
     private static final double MAX_DUMPY_POSITION = 1.0;
     private static final double MIN_DUMPY_POSITION = 0.5;
-    private static final double LEFT_LINE = 150.0;
-    private static final double RIGHT_LINE = 300.0;
-    private double x;
-    private int objectNum = 0;
     private static final boolean USE_WEBCAM = true;
     private WebcamName webcam1;
-    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/TeamPropRed.tflite";
-    private static final String[] LABELS = {
-            "Team Prop",
-    };
     private static final double DESIRED_DISTANCE = 12.0;
     private static final double APRIL_TAG_SPEED_GAIN = 0.02;
     private static final double APRIL_TAG_STRAFE_GAIN = 0.015;
@@ -52,11 +41,10 @@ public class AprilTagTest extends LinearOpMode {
     private static final double APRIL_TAG_MAX_AUTO_SPEED = 0.5;
     private static final double APRIL_TAG_MAX_AUTO_STRAFE = 0.5;
     private static final double APRIL_TAG_MAX_AUTO_TURN = 0.3;
-    private int desiredTagId = 4;
+    private int desiredTagId;
     private AprilTagProcessor aprilTag;
     private AprilTagDetection desiredTag = null;
-    private int detectedTagId = -1;
-    private boolean targetFound = false;
+    private int detectedTagId;
     private double drive = 0;
     private double strafe = 0;
     private double turn = 0;
@@ -64,7 +52,7 @@ public class AprilTagTest extends LinearOpMode {
     private double headingError = -1;
     private double yawError = -1;
     private VisionPortal visionPortal;
-    
+
     @Override
     public void runOpMode() {
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
@@ -92,21 +80,25 @@ public class AprilTagTest extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-             //desiredTagId = 4;
-                while (opModeIsActive() && detectedTagId != desiredTagId)  {
-                    aprilTagDetection();
-                }
-                while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
-                    // May need to add tolerance. Math.abs(error) > tolerance
-                    aprilTagMovement();
-                    telemetry.update();
-                }
-            visionPortal.close();
+            desiredTagId = 4;
+            while (opModeIsActive() && detectedTagId != desiredTagId)  {
+                telemetry.addLine("Start Detecting");
+                aprilTagDetection();
+                telemetry.update();
+            }
+            telemetry.addLine("Transitioning...");
+            telemetry.update();
+            while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
+                // May need to add tolerance. Math.abs(error) > tolerance
+                telemetry.addLine("Start Moving");
+                aprilTagMovement();
+                telemetry.update();
+            }
         }
-
+        visionPortal.close();
     }
 
-   
+
     private void initAprilTag() {
         aprilTag = new AprilTagProcessor.Builder().build();
         aprilTag.setDecimation(2);
@@ -129,8 +121,8 @@ public class AprilTagTest extends LinearOpMode {
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
                 if ((desiredTagId < 0) || (detection.id == desiredTagId)) {
-                    targetFound = true;
                     desiredTag = detection;
+                    detectedTagId = detection.id;
                     break;
                 } else {
                     telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
@@ -138,9 +130,8 @@ public class AprilTagTest extends LinearOpMode {
             } else {
                 telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
             }
-            detectedTagId = detection.id;
+            telemetry.update();
         }
-        telemetry.update();
     }
 
     private void aprilTagMovement() {
@@ -148,30 +139,20 @@ public class AprilTagTest extends LinearOpMode {
         telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
         telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
         telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
+        sleep(1000);
+        telemetry.update();
 
-        double rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-        double headingError = desiredTag.ftcPose.bearing;
-        double yawError = desiredTag.ftcPose.yaw;
+        rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+        headingError = desiredTag.ftcPose.bearing;
+        yawError = desiredTag.ftcPose.yaw;
 
         drive = Range.clip(rangeError * APRIL_TAG_SPEED_GAIN, -APRIL_TAG_MAX_AUTO_SPEED, APRIL_TAG_MAX_AUTO_SPEED);
         turn = Range.clip(headingError * APRIL_TAG_TURN_GAIN, -APRIL_TAG_MAX_AUTO_TURN, APRIL_TAG_MAX_AUTO_TURN) ;
         strafe = Range.clip(-yawError * APRIL_TAG_STRAFE_GAIN, -APRIL_TAG_MAX_AUTO_STRAFE, APRIL_TAG_MAX_AUTO_STRAFE);
 
         telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
-        aprilTagMoveBot(drive, strafe, turn);
         telemetry.update();
-    }
-
-    private void mecanumMoveBot(double FB_translation, double LR_translation, double rotation) {
-        double FL_power = FB_translation + LR_translation + rotation;
-        double BL_power = FB_translation - LR_translation + rotation;
-        double FR_power = FB_translation - LR_translation - rotation;
-        double BR_power = FB_translation + LR_translation - rotation;
-
-        motorFrontLeft.setPower(FL_power);
-        motorBackLeft.setPower(BL_power);
-        motorFrontRight.setPower(FR_power);
-        motorBackRight.setPower(BR_power);
+        aprilTagMoveBot(drive, strafe, turn);
     }
 
     public void aprilTagMoveBot(double x, double y, double yaw) {
