@@ -9,14 +9,17 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@Autonomous(name = "AprilTagTest", group = "")
-public class AprilTagTest extends LinearOpMode {
+@Autonomous(name = "AprilTag", group = "")
+public class AprilTag extends LinearOpMode {
 
     private DcMotor motorFrontRight;
     private DcMotor motorFrontLeft;
@@ -45,9 +48,9 @@ public class AprilTagTest extends LinearOpMode {
     private AprilTagProcessor aprilTag;
     private AprilTagDetection desiredTag = null;
     private int detectedTagId;
-    private double drive = 0;
-    private double strafe = 0;
-    private double turn = 0;
+    private double drive = -1;
+    private double strafe = -1;
+    private double turn = -1;
     double rangeError = -1;
     private double headingError = -1;
     private double yawError = -1;
@@ -77,22 +80,13 @@ public class AprilTagTest extends LinearOpMode {
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         initAprilTag();
+        setManualExposure(6, 250); // Use low exposure time to reduce motion blur
         waitForStart();
 
         if (opModeIsActive()) {
             desiredTagId = 4;
-            while (opModeIsActive() && detectedTagId != desiredTagId)  {
-                telemetry.addLine("Start Detecting");
-                aprilTagDetection();
-                telemetry.update();
-            }
-            telemetry.addLine("Transitioning...");
-            telemetry.update();
-            while (opModeIsActive() && detectedTagId == desiredTagId && rangeError != 0 && headingError != 0 && yawError != 0) {
-                // May need to add tolerance. Math.abs(error) > tolerance
-                telemetry.addLine("Start Moving");
-                aprilTagMovement();
-                telemetry.update();
+            while (opModeIsActive() && ((detectedTagId != desiredTagId) || (detectedTagId == desiredTagId && (Math.abs(drive) > 0.1 || Math.abs(turn) > 0.1 || Math.abs(strafe) > 0.1)))) {
+                processAprilTag();
             }
         }
         visionPortal.close();
@@ -116,13 +110,15 @@ public class AprilTagTest extends LinearOpMode {
         }
     }
 
-    private void aprilTagDetection() {
+    private void processAprilTag() {
+        boolean targetFound = false;
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
                 if ((desiredTagId < 0) || (detection.id == desiredTagId)) {
                     desiredTag = detection;
                     detectedTagId = detection.id;
+                    targetFound = true;
                     break;
                 } else {
                     telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
@@ -132,27 +128,28 @@ public class AprilTagTest extends LinearOpMode {
             }
             telemetry.update();
         }
-    }
+        
+        if (targetFound) {
+            telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
+            telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
+            telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
+            telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
+            telemetry.update();
 
-    private void aprilTagMovement() {
-        telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-        telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
-        telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
-        telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
-        sleep(1000);
-        telemetry.update();
+            rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+            headingError = desiredTag.ftcPose.bearing;
+            yawError = desiredTag.ftcPose.yaw;
 
-        rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-        headingError = desiredTag.ftcPose.bearing;
-        yawError = desiredTag.ftcPose.yaw;
+            drive = Range.clip(rangeError * APRIL_TAG_SPEED_GAIN, -APRIL_TAG_MAX_AUTO_SPEED, APRIL_TAG_MAX_AUTO_SPEED);
+            turn = Range.clip(headingError * APRIL_TAG_TURN_GAIN, -APRIL_TAG_MAX_AUTO_TURN, APRIL_TAG_MAX_AUTO_TURN) ;
+            strafe = Range.clip(-yawError * APRIL_TAG_STRAFE_GAIN, -APRIL_TAG_MAX_AUTO_STRAFE, APRIL_TAG_MAX_AUTO_STRAFE);
 
-        drive = Range.clip(rangeError * APRIL_TAG_SPEED_GAIN, -APRIL_TAG_MAX_AUTO_SPEED, APRIL_TAG_MAX_AUTO_SPEED);
-        turn = Range.clip(headingError * APRIL_TAG_TURN_GAIN, -APRIL_TAG_MAX_AUTO_TURN, APRIL_TAG_MAX_AUTO_TURN) ;
-        strafe = Range.clip(-yawError * APRIL_TAG_STRAFE_GAIN, -APRIL_TAG_MAX_AUTO_STRAFE, APRIL_TAG_MAX_AUTO_STRAFE);
+            telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+        }
 
-        telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
         telemetry.update();
         aprilTagMoveBot(drive, strafe, turn);
+        sleep(10); // Wait to update
     }
 
     public void aprilTagMoveBot(double x, double y, double yaw) {
@@ -176,6 +173,39 @@ public class AprilTagTest extends LinearOpMode {
         motorFrontRight.setPower(frontRightPower);
         motorBackLeft.setPower(backLeftPower);
         motorBackRight.setPower(backRightPower);
+    }
+
+    private void setManualExposure(int exposureMS, int gain) {
+        // Wait for the camera to be open, then use the controls
+
+        if (visionPortal == null) {
+            return;
+        }
+
+        // Make sure camera is streaming before we try to set the exposure controls
+        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            telemetry.addData("Camera", "Waiting");
+            telemetry.update();
+            while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
+                sleep(20);
+            }
+            telemetry.addData("Camera", "Ready");
+            telemetry.update();
+        }
+
+        // Set camera controls unless we are stopping.
+        if (!isStopRequested()) {
+            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
+                exposureControl.setMode(ExposureControl.Mode.Manual);
+                sleep(50);
+            }
+            exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
+            sleep(20);
+            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+            gainControl.setGain(gain);
+            sleep(20);
+        }
     }
 
     private void armMovement(double power, int targetPosition) {
