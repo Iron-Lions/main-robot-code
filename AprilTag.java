@@ -83,6 +83,7 @@ public class AprilTag extends LinearOpMode {
         setManualExposure(6, 250); // Use low exposure time to reduce motion blur
         waitForStart();
 
+
         if (opModeIsActive()) {
             desiredTagId = 4;
             while (opModeIsActive() && ((detectedTagId != desiredTagId) || (detectedTagId == desiredTagId && (Math.abs(drive) > 0.1 || Math.abs(turn) > 0.1 || Math.abs(strafe) > 0.1)))) {
@@ -112,6 +113,7 @@ public class AprilTag extends LinearOpMode {
 
     private void processAprilTag() {
         boolean targetFound = false;
+        desiredTag = null;
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
