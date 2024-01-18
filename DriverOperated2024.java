@@ -12,10 +12,10 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 @TeleOp(name = "DriverOperated2024", group = "")
 public class DriverOperated2024 extends LinearOpMode {
     //These are placeholders!!!!!!!!!!!!!!!!!!!!!!!!
-    private static final double MAX_LIFT_POSITION = 0;
-    private static final double MIN_LIFT_POSITION = -3100.0;
-    private static final double MAX_ARM_POSITION = 750.0;
-    private static final double MIN_ARM_POSITION = -10000.0;
+    private static final double MAX_LIFT_POSITION = 1000000;
+    private static final double MIN_LIFT_POSITION = -310000.0;
+    private static final double MAX_ARM_POSITION = 750000.0;
+    private static final double MIN_ARM_POSITION = -1000000.0;
     //Min and Max of dumpy (servo) are scaled between the right most (max) and left most (min) positions
     private static final double MAX_DUMPY_POSITION = 1.0;
     private static final double MIN_DUMPY_POSITION = 0.5;
@@ -27,6 +27,7 @@ public class DriverOperated2024 extends LinearOpMode {
     private DcMotor motorFrontRight;
     private DcMotor motorBackRight;
     private DcMotor lift;
+    private DcMotor lift4;
     private DcMotor arm;
     private DcMotor intake;
     private Servo dumpy_4;
@@ -55,12 +56,14 @@ public class DriverOperated2024 extends LinearOpMode {
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
         intake = hardwareMap.dcMotor.get("intake");
         lift = hardwareMap.dcMotor.get("lift");
+        lift4 = hardwareMap.dcMotor.get("lift4");
         arm = hardwareMap.dcMotor.get("arm");
         dumpy_4 = hardwareMap.servo.get("dumpy_4");
         //Allows us to determine position (encoders) and makes motors stop when unpowered
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -68,6 +71,7 @@ public class DriverOperated2024 extends LinearOpMode {
         // Reverse left motors if you are using NeveRests
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
         // Retrieve the IMU from the hardware map
         imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
@@ -87,12 +91,15 @@ public class DriverOperated2024 extends LinearOpMode {
             //This code ensures the lift doesn't move too far and damage the robot
             if (liftEncoderPosition <= MIN_LIFT_POSITION) {
                 lift.setPower(Math.max(liftPower, 0));
+                lift4.setPower(Math.max(liftPower, 0));
             }
             else if (liftEncoderPosition >= MAX_LIFT_POSITION) {
                 lift.setPower(Math.min(liftPower, 0));
+                lift4.setPower(Math.min(liftPower, 0));
             }
             else {
                 lift.setPower(liftPower);
+                lift4.setPower(liftPower);
             }
             armEncoderPosition = arm.getCurrentPosition();
             armPower = -ARM_GAMEPAD.right_stick_y*0.25;
@@ -148,7 +155,7 @@ public class DriverOperated2024 extends LinearOpMode {
             double frontRightPower = (rotY - rotX - rx) / denominator;
             double backRightPower = (rotY + rotX - rx) / denominator;
             //code for sensitivity mode (hold)
-            if(DRIVE_GAMEPAD.left_trigger || DRIVE_GAMEPAD.right_trigger == false){
+            if(DRIVE_GAMEPAD.left_trigger == 1 || DRIVE_GAMEPAD.right_trigger == 0){
                 frontLeftPower *= SENS_FACTOR;
                 backLeftPower *= SENS_FACTOR;
                 frontRightPower *= SENS_FACTOR;
