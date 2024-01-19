@@ -101,8 +101,9 @@ public class DriverOperated2024 extends LinearOpMode {
                 lift.setPower(liftPower);
                 lift4.setPower(liftPower);
             }
+            
             armEncoderPosition = arm.getCurrentPosition();
-            armPower = -ARM_GAMEPAD.right_stick_y*0.25;
+            armPower = -ARM_GAMEPAD.right_stick_y * 0.25;
             //This code ensures the arm doesn't move too far and damage the robot
             if (armEncoderPosition <= MIN_ARM_POSITION) {
                 arm.setPower(Math.max(armPower, 0));
@@ -110,7 +111,7 @@ public class DriverOperated2024 extends LinearOpMode {
             else if (armEncoderPosition >= MAX_ARM_POSITION) {
                 arm.setPower(Math.min(armPower, 0));
             }
-            else if(liftEncoderPosition<=-2500){
+            else{
                 arm.setPower(armPower);
             }
             //You need to hold the bumpers to make it work
