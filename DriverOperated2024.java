@@ -1,6 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 //Need this to use things from ftc java library
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,15 +18,21 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 @TeleOp(name = "DriverOperated2024", group = "")
 public class DriverOperated2024 extends LinearOpMode {
     //These are placeholders!!!!!!!!!!!!!!!!!!!!!!!!
-    private static final double MAX_LIFT_POSITION = 1000000;
-    private static final double MIN_LIFT_POSITION = -310000.0;
-    private static final double MAX_ARM_POSITION = 750000.0;
-    private static final double MIN_ARM_POSITION = -1000000.0;
-    //Min and Max of dumpy (servo) are scaled between the right most (max) and left most (min) positions
+    private static final double MAX_LIFT_POSITION = 4000.0;
+    private static final double MIN_LIFT_POSITION = 0.0;
+    //private static final double MAX_ARM_POSITION = 750000.0;
+    //private static final double MIN_ARM_POSITION = -1000000.0;
+    //Min and Max of dumpy (pixel dropper) are scaled between the right most (max) and left most (min) positions
     private static final double MAX_DUMPY_POSITION = 1.0;
-    private static final double MIN_DUMPY_POSITION = 0.5;
+    private static final double MIN_DUMPY_POSITION = 0.6;
+    //Min and Max of Airplane Lanucher
+    private static final double MAX_PLANE_POSITION = 0;
+    //3 Positions used for Backdrop servo
+    private static final double INIT_BACKDROP_POSITION = 1;
+    private static final double READY_BACKDROP_POSITION = 0.5;
+    private static final double FINISH_BACKDROP_POSITION = 0;
     //Factor to multiply by when sensitivity mode is activated
-    private static final double SENS_FACTOR = 0.25;
+    private static final double SENS_FACTOR = 0.5;
     //declaring motors, servos, and imu
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
@@ -30,7 +42,9 @@ public class DriverOperated2024 extends LinearOpMode {
     private DcMotor lift4;
     private DcMotor arm;
     private DcMotor intake;
-    private Servo dumpy_4;
+    private Servo airplane;
+    private Servo dumpy_4; //This is the pixel dropper
+    private Servo backdrop;
     private IMU imu;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,17 +62,21 @@ public class DriverOperated2024 extends LinearOpMode {
         double dumpy_4Position;
         double check1 = 0;
         double check2 = 0;
+        double intakePower = 0;
         boolean encoderLimitArm = true;
         //Gets information from configuration on driverhub
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
-        intake = hardwareMap.dcMotor.get("intake");
-        lift = hardwareMap.dcMotor.get("lift");
-        lift4 = hardwareMap.dcMotor.get("lift4");
+        //intake = hardwareMap.dcMotor.get("intake");
+        lift = hardwareMap.dcMotor.get("lift_main");
+        lift4 = hardwareMap.dcMotor.get("lift_mirrored");
         arm = hardwareMap.dcMotor.get("arm");
+        intake = hardwareMap.dcMotor.get("intake");
         dumpy_4 = hardwareMap.servo.get("dumpy_4");
+        airplane = hardwareMap.servo.get("airplane");
+        backdrop = hardwareMap.servo.get("backdrop");
         //Allows us to determine position (encoders) and makes motors stop when unpowered
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -87,12 +105,16 @@ public class DriverOperated2024 extends LinearOpMode {
             double x = -DRIVE_GAMEPAD.left_stick_x * 1.1; // Counteract imperfect strafing
             double rx = DRIVE_GAMEPAD.right_stick_x;
             liftEncoderPosition = lift.getCurrentPosition();
-            liftPower = LIFT_GAMEPAD.left_stick_y;
+            liftPower = -LIFT_GAMEPAD.left_stick_y;
             //This code ensures the lift doesn't move too far and damage the robot
             if (liftEncoderPosition <= MIN_LIFT_POSITION) {
                 lift.setPower(Math.max(liftPower, 0));
                 lift4.setPower(Math.max(liftPower, 0));
             }
+            if (LIFT_GAMEPAD.y) {
+                lift.setPower(liftPower);
+            }
+            
             else if (liftEncoderPosition >= MAX_LIFT_POSITION) {
                 lift.setPower(Math.min(liftPower, 0));
                 lift4.setPower(Math.min(liftPower, 0));
@@ -103,17 +125,8 @@ public class DriverOperated2024 extends LinearOpMode {
             }
             
             armEncoderPosition = arm.getCurrentPosition();
-            armPower = -ARM_GAMEPAD.right_stick_y * 0.25;
-            //This code ensures the arm doesn't move too far and damage the robot
-            if (armEncoderPosition <= MIN_ARM_POSITION) {
-                arm.setPower(Math.max(armPower, 0));
-            }
-            else if (armEncoderPosition >= MAX_ARM_POSITION) {
-                arm.setPower(Math.min(armPower, 0));
-            }
-            else{
-                arm.setPower(armPower);
-            }
+            armPower = -ARM_GAMEPAD.right_stick_y * 0.5;
+            arm.setPower(armPower);
             //You need to hold the bumpers to make it work
             if(INTAKE_GAMEPAD.right_bumper){
                 check1 = -0.75;
@@ -127,7 +140,24 @@ public class DriverOperated2024 extends LinearOpMode {
             else {
                 check2 = 0;
             }
-            intake.setPower(check1 + check2);
+            //This fires the airplane if a is pressed
+            if(SERVO_GAMEPAD.a){
+                airplane.setPosition(MAX_PLANE_POSITION); 
+            }
+            /*
+            if(gamepad1.a){
+                backdrop.setPosition(INIT_BACKDROP_POSITION);
+            }
+            if(gamepad1.y){
+                backdrop.setPosition(READY_BACKDROP_POSITION);
+            }
+            if(gamepad1.b){
+                backdrop.setPosition(FINISH_BACKDROP_POSITION);
+            }
+            */
+            
+            intakePower = check1 + check2;
+            intake.setPower(intakePower);
             //This is to print out telemetry later
             dumpy_4Position = dumpy_4.getPosition();
             //Servo controls-can only move dumpy_4 to two locations
@@ -156,7 +186,7 @@ public class DriverOperated2024 extends LinearOpMode {
             double frontRightPower = (rotY - rotX - rx) / denominator;
             double backRightPower = (rotY + rotX - rx) / denominator;
             //code for sensitivity mode (hold)
-            if(DRIVE_GAMEPAD.left_trigger == 1 || DRIVE_GAMEPAD.right_trigger == 0){
+            if(/*DRIVE_GAMEPAD.left_trigger == 1 ||*/ DRIVE_GAMEPAD.right_trigger == 0){
                 frontLeftPower *= SENS_FACTOR;
                 backLeftPower *= SENS_FACTOR;
                 frontRightPower *= SENS_FACTOR;
