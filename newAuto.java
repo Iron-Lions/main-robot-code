@@ -39,10 +39,8 @@ public class newAuto extends LinearOpMode {
         
         waitForStart();
         if(opModeIsActive()){
-            Rotate('R',90.0,0.25);
-            Rotate('L',180.0,0.25);
-            Rotate('R',90.0,0.25);
-            movement('f',0.25,500);
+            Rotate('R',15,0.5);
+            Rotate('L',15,0.5);
         }
         
         while (opModeIsActive()) {
