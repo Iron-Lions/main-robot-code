@@ -83,15 +83,19 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
 
 
             if (x < LEFT_LINE) {
+                //Moves robot toward team prop
                 mecanumMoveBot(-MOVE_SPEED, 0, 0);// movement(F, 0.5, 1 square)
+                //Sleep method means previous method will run until sleep method ends (time is in milliseconds)
                 sleep(500); //Delete
+                //Rotates robot
                 mecanumMoveBot(0, 0, -MOVE_SPEED);// rotate(??, 90, 0.5)
                 sleep(750); 
-                mecanumMoveBot(0, 0, 0);
+                mecanumMoveBot(0, 0, 0); //Stops robot
                 //Assign variable to this when certain
-                pixelDropper.setPosition(0.6);
+                pixelDropper.setPosition(0.6); //Drops pixel
             }
             else if (x > LEFT_LINE && x < RIGHT_LINE) {
+                //Moves robot toward team prop
                 mecanumMoveBot(-MOVE_SPEED, 0, 0);
                 sleep(800);
                 mecanumMoveBot(0, 0, 0);
@@ -99,6 +103,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                 pixelDropper.setPosition(0.6);
             }
             else if (x > RIGHT_LINE) {
+                //Moves robot toward team prop
                 mecanumMoveBot(-MOVE_SPEED, 0, 0);
                 sleep(500);
                 mecanumMoveBot(0, 0, MOVE_SPEED);
