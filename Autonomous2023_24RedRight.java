@@ -1,65 +1,216 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous(name="MotorTest", group="")
-public class MotorTest extends LinearOpMode{
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
-    // todo: write your code here
+import java.util.List;
+
+@Autonomous(name = "Autonomous2023_24RedRight", group = "")
+
+public class Autonomous2023_24RedRight extends LinearOpMode {
+
+    private double yaw;
+    private IMU imu;
+
+    private DcMotor motorFrontRight;
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
     private DcMotor motorBackRight;
-    private DcMotor motorFrontRight;
-    private IMU imu;
-    private static final double MOVE_SPEED = 0.25;
-    private double yaw;
 
-    public void runOpMode() throws InterruptedException{
+    private Servo pixelDropper;
+
+    private static final double MOVE_SPEED = 0.25;
+    private static final double MIDDLE_LINE = 250.0;
+    private double x;
+    private int objectNum = 0;
+    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
+
+
+    // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
+    // this is used when uploading models directly to the RC using the model upload interface.
+    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/TeamPropRed.tflite";
+    // Define the labels recognized in the model for TFOD (must be in training order!)
+    private static final String[] LABELS = {
+            "Red Team Prop",
+    };
+    private TfodProcessor tfod;
+    private VisionPortal visionPortal;
+
+    private ElapsedTime runTime = new ElapsedTime();
+
+    @Override
+    public void runOpMode() {
+
         motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
-        motorBackRight = hardwareMap.dcMotor.get("Back_Right");
         motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
-        imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
-        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
-        imu.initialize(parameters);
+        motorBackRight = hardwareMap.dcMotor.get("Back_Right");
 
-        imu.resetYaw();
+        pixelDropper = hardwareMap.servo.get("pixel_dropper");
+
+        imu = hardwareMap.get(IMU.class, "imu");
 
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        pixelDropper.setPosition(1.0);
+
+        imu.resetYaw();
+
+        initTfod();
         waitForStart();
-    
-        
+
         if (opModeIsActive()) {
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.65);
-                Rotate('L', 90, MOVE_SPEED);
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
-                //*drop pixel*
-                mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.1);
-                Rotate('R', 180, MOVE_SPEED);
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
-                //*flip forward backdrop servo*
-                //Align with left april tag
-                mecanumMoveBotEncoders(.1, 0, 0,.3);
-                mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                //*flip down backdrop servo*
-                Rotate('R', 90, MOVE_SPEED);
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
-                //**End of program*
+
+            yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+            if (opModeIsActive() && objectNum == 0) { // Check Middle
+                runTime.reset();
+                while (opModeIsActive() && runTime.milliseconds() <= 3000) {
+                    telemetryTfod();
+                    if (objectNum == 1 && x < MIDDLE_LINE) {
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
+                        //*drop pixel*
+                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .25);
+                        Rotate('R', 90, 0.5);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
+                        //*flip forward backdrop servo*
+                        //*Align with center april tag*
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
+                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                        //*flip down backdrop servo*
+                        Rotate('R', 90, 0.5);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
+                        //**End of program**
+
+                    }
+                    if (objectNum == 1 && x > MIDDLE_LINE) { // Left
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.65);
+                        Rotate('L', 90, MOVE_SPEED);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
+                        //*drop pixel*
+                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.1);
+                        Rotate('R', 180, MOVE_SPEED);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
+                        //*flip forward backdrop servo*
+                        //Align with left april tag
+                        mecanumMoveBotEncoders(.1, 0, 0,.3);
+                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                        //*flip down backdrop servo*
+                        Rotate('R', 90, MOVE_SPEED);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
+                        //**End of program*
+
+                    }
+                    else { // Right
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
+                        Rotate('R', 90, 0.5);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
+                        Rotate('L', 90, 0.5);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.75);
+                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.25);
+                        //*drop pixel*
+                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                        Rotate('R', 90, 0.5);
+                        //*flip forward backdrop servo*
+                        //*Align with right april tag*
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.3);
+                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                        //*flip down backdrop servo*
+                        Rotate('R', 90, 0.5);
+                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
+                        //**End of program**
+
+                    }
+                }
+            }
+        }
+
+        // Save CPU resources when camera is no longer needed.
+        visionPortal.close();
+
+    }
+
+    private void initTfod() {
+
+        // Create the TensorFlow processor by using a builder.
+        tfod = new TfodProcessor.Builder()
+
+                // With the following lines commented out, the default TfodProcessor Builder
+                // will load the default model for the season. To define a custom model to load,
+                // choose one of the following:
+                //   Use setModelAssetName() if the custom TF Model is built in as an asset (AS only).
+                //   Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
+                //.setModelAssetName(TFOD_MODEL_ASSET)
+                .setModelFileName(TFOD_MODEL_FILE)
+
+                // The following default settings are available to un-comment and edit as needed to
+                // set parameters for custom models.
+                .setModelLabels(LABELS)
+                //.setIsModelTensorFlow2(true)
+                //.setIsModelQuantized(true)
+                //.setModelInputSize(300)
+                //.setModelAspectRatio(16.0 / 9.0)
+
+                .build();
+
+        // Create the vision portal by using a builder.
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+
+        // Set the camera (webcam vs. built-in RC phone camera).
+        if (USE_WEBCAM) {
+            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        } else {
+            builder.setCamera(BuiltinCameraDirection.BACK);
+        }
+
+
+        // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
+        builder.enableLiveView(true);
+
+        // Set and enable the processor.
+        builder.addProcessor(tfod);
+
+        // Build the Vision Portal, using the above settings.
+        visionPortal = builder.build();
+
+        // Set confidence threshold for TFOD recognitions, at any time.
+        tfod.setMinResultConfidence(0.8f);
+
+    }
+
+    private void telemetryTfod() {
+
+        List<Recognition> currentRecognitions = tfod.getRecognitions();
+        objectNum = currentRecognitions.size();
+        telemetry.addData("# Objects Detected", objectNum);
+
+        // Step through the list of recognitions and display info for each one.
+        for (Recognition recognition : currentRecognitions) {
+            x = (recognition.getLeft() + recognition.getRight()) / 2 ;
+            double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
+
+            telemetry.addData(""," ");
+            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
+            telemetry.addData("- Position", "%.0f / %.0f", x, y);
+            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+            telemetry.update();
         }
 
     }
+
     private void mecanumMoveBotEncoders(double FB_translation, double LR_translation, double rotation, double distance) {
         // Calculate individual motor powers
         FB_translation = -FB_translation;
@@ -164,48 +315,49 @@ public class MotorTest extends LinearOpMode{
     public void Rotate(char direction, double angle, double motorPower){
         imu.resetYaw();
         yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-            DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
-            DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
-            DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
-            DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
+        DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
+        DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
+        DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
 
-            motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
 
-            angle = (angle - 7.5) * 1; // Tuning 1 if needed
+        angle = (angle - 7.5) * 1; // Tuning 1 if needed
 
-            if (direction == 'R') {
-                while (yaw >= -angle) {
-                    yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                    motorFrontLeft.setPower(-motorPower);
-                    motorBackLeft.setPower(-motorPower);
-                    motorFrontRight.setPower(motorPower);
-                    motorBackRight.setPower(motorPower);
-                    telemetry.addData("yaw", yaw);
-                    telemetry.update();
-                }
+        if (direction == 'R') {
+            while (yaw >= -angle) {
+                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                motorFrontLeft.setPower(-motorPower);
+                motorBackLeft.setPower(-motorPower);
+                motorFrontRight.setPower(motorPower);
+                motorBackRight.setPower(motorPower);
+                telemetry.addData("yaw", yaw);
+                telemetry.update();
             }
+        }
 
-            if (direction == 'L') {
-                while (yaw <= angle) {
-                    yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                    motorFrontLeft.setPower(motorPower);
-                    motorBackLeft.setPower(motorPower);
-                    motorFrontRight.setPower(-motorPower);
-                    motorBackRight.setPower(-motorPower);
-                    telemetry.addData("yaw", yaw);
-                    telemetry.update();
-                }
+        if (direction == 'L') {
+            while (yaw <= angle) {
+                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                motorFrontLeft.setPower(motorPower);
+                motorBackLeft.setPower(motorPower);
+                motorFrontRight.setPower(-motorPower);
+                motorBackRight.setPower(-motorPower);
+                telemetry.addData("yaw", yaw);
+                telemetry.update();
             }
+        }
 
-            motorFrontLeft.setPower(0);
-            motorBackLeft.setPower(0);
-            motorFrontRight.setPower(0);
-            motorBackRight.setPower(0);
-            telemetry.addData("Encoder Value", motorFrontRight.getCurrentPosition());
-            telemetry.addData("Target Value", motorFrontRight.getTargetPosition());
-            telemetry.update();
+        motorFrontLeft.setPower(0);
+        motorBackLeft.setPower(0);
+        motorFrontRight.setPower(0);
+        motorBackRight.setPower(0);
+        telemetry.addData("Encoder Value", motorFrontRight.getCurrentPosition());
+        telemetry.addData("Target Value", motorFrontRight.getTargetPosition());
+        telemetry.update();
+        sleep(500);
     }
 }
