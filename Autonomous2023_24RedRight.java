@@ -28,9 +28,9 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
     private DcMotor motorBackRight;
-
     private Servo pixelDropper;
     private Servo backdrop;
+    
 
     private static final double MOVE_SPEED = 0.25;
     private static final double MAX_LIFT_POSITION = 0;
@@ -82,8 +82,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
-        backdrop.setPosition(INIT_BACKDROP_POSITION);
+        pixelDropper.setPosition(1.0);
 
         imu.resetYaw();
 
@@ -107,12 +106,10 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                         Rotate('R', 90, 0.5);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
                         //*flip forward backdrop servo*
-                        backdrop.setPosition(READY_BACKDROP_POSITION);
                         //*Align with center april tag*
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         //*flip down backdrop servo*
-                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
                         Rotate('R', 90, 0.5);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
                         //**End of program**
@@ -128,12 +125,10 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                         Rotate('R', 180, MOVE_SPEED);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
                         //*flip forward backdrop servo*
-                        backdrop.setPosition(READY_BACKDROP_POSITION);
                         //Align with left april tag
                         mecanumMoveBotEncoders(.1, 0, 0,.3);
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         //*flip down backdrop servo*
-                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
                         Rotate('R', 90, MOVE_SPEED);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
                         //**End of program*
@@ -151,12 +146,10 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         Rotate('R', 90, 0.5);
                         //*flip forward backdrop servo*
-                        backdrop.setPosition(READY_BACKDROP_POSITION);
                         //*Align with right april tag*
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.3);
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         //*flip down backdrop servo*
-                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
                         Rotate('R', 90, 0.5);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
                         //**End of program**

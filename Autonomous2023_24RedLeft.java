@@ -30,7 +30,7 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
     
     private Servo pixelDropper;
 
-    private static final double MOVE_SPEED = 0.5;
+    private static final double MOVE_SPEED = 0.25;
     private static final double MAX_LIFT_POSITION = 0;
     private static final double MIN_LIFT_POSITION = -3100.0;
     private static final double MAX_ARM_POSITION = 750.0;
@@ -38,6 +38,9 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
     //Min and Max of dumpy (servo) are scaled between the right most (max) and left most (min) positions
     private static final double MAX_DUMPY_POSITION = 1.0;
     private static final double MIN_DUMPY_POSITION = 0.6;
+    private static final double INIT_BACKDROP_POSITION = 1;
+    private static final double READY_BACKDROP_POSITION = 0.4;
+    private static final double FINISH_BACKDROP_POSITION = 0;
     private static final double LEFT_LINE = 150.0;
     private static final double RIGHT_LINE = 300.0;
     private double x;
@@ -62,6 +65,8 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        
+        imu = hardwareMap.get(IMU.class, "imu");
         
         pixelDropper = hardwareMap.servo.get("pixel_dropper");
 
@@ -170,7 +175,7 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
         visionPortal = builder.build();
 
         // Set confidence threshold for TFOD recognitions, at any time.
-        tfod.setMinResultConfidence(0.75f);
+        tfod.setMinResultConfidence(0.8f);
 
         // Disable or re-enable the TFOD processor at any time.
         //visionPortal.setProcessorEnabled(tfod, true);
@@ -209,92 +214,154 @@ public class Autonomous2023_24RedLeft extends LinearOpMode {
         motorBackRight.setPower(BR_power);
     }
 
-    public void movement(char direction, double motorPower, double distance) {
+    //Distance is in meters
+    private void mecanumMoveBotEncoders(double FB_translation, double LR_translation, double rotation, double distance) {
+        // Calculate individual motor powers
+        FB_translation = -FB_translation;
+        double FL_power = FB_translation + LR_translation + rotation;
+        double BL_power = FB_translation - LR_translation + rotation;
+        double FR_power = FB_translation - LR_translation - rotation;
+        double BR_power = FB_translation + LR_translation - rotation;
+
+        int FL_direction = 0;
+        int BL_direction = 0;
+        int FR_direction = 0;
+        int BR_direction = 0;
+
+        distance = distance * 1000; //meters to mm
         
-        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
-        DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
-        DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
-        DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
-        
-        
-        
-        if (direction == 'b'){
-            distance = -distance;
+        distance = distance * 0.97035; // Tune ratio
+
+        double numberOfTicks = (distance/(96*Math.PI))*537.7;
+
+
+        if (FL_power > 0) {
+            FL_direction = 1;
+        }
+        else if (FL_power < 0) {
+            FL_direction = -1;
+        }
+        if (BL_power > 0) {
+            BL_direction = 1;
+        }
+        else if (BL_power < 0) {
+            BL_direction = -1;
+        }
+        if (FR_power > 0) {
+            FR_direction = 1;
+        }
+        else if (FR_power < 0) {
+            FR_direction = -1;
+        }
+        if (BR_power > 0) {
+            BR_direction = 1;
+        }
+        else if (BR_power < 0) {
+            BR_direction = -1;
         }
 
+        // Set target encoder positions
+        int BLTargetPosition = motorBackLeft.getCurrentPosition() + (int) (numberOfTicks * (BL_direction));
+        int FLTargetPosition = motorFrontLeft.getCurrentPosition() + (int) (numberOfTicks * (FL_direction));
+        int FRTargetPosition = motorFrontRight.getCurrentPosition() + (int) (numberOfTicks * (FR_direction));
+        int BRTargetPosition = motorBackRight.getCurrentPosition() + (int) (numberOfTicks * (BR_direction));
 
-        double distanceTravelled = 0;
-        int numOfTicks = (int)Math.round((distance/(96*Math.PI))*537.7);
-        
-        
-        motorFrontRight.setTargetPosition(numOfTicks);
-        motorFrontLeft.setTargetPosition(numOfTicks);
-        motorBackRight.setTargetPosition(numOfTicks);
-        motorBackLeft.setTargetPosition(numOfTicks);
-        
+        // Set target positions for encoders
+        motorFrontLeft.setTargetPosition(FLTargetPosition);
+        motorBackLeft.setTargetPosition(BLTargetPosition);
+        motorFrontRight.setTargetPosition(FRTargetPosition);
+        motorBackRight.setTargetPosition(BRTargetPosition);
+
+        // Set motor power and run to position
+        motorFrontLeft.setPower(FL_power);
+        motorBackLeft.setPower(BL_power);
+        motorFrontRight.setPower(FR_power);
+        motorBackRight.setPower(BR_power);
+
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        
-        //distanceTravelled will be calculated with encoders
 
-        /*while (distanceTravelled < distance){
-            motorFrontRight.setPower(motorPower);
-            motorBackRight.setPower(motorPower);
-            motorFrontLeft.setPower(motorPower);
-            motorBackLeft.setPower(motorPower);
-            distanceTravelled = encoder * 96 * 3.14;
-        } */   
-        
-        motorFrontRight.setPower(motorPower);
-        motorBackRight.setPower(motorPower);
-        motorFrontLeft.setPower(motorPower);
-        motorBackLeft.setPower(motorPower);
-        
-    }
+        // Wait until all motors reach their target position
+        while (opModeIsActive() && motorFrontLeft.isBusy() && motorBackRight.isBusy() && motorBackLeft.isBusy() && motorFrontRight.isBusy()) {
+            telemetry.addData("FrontRight Position", motorFrontRight.getCurrentPosition());
+            telemetry.addData("BackLeft Position", motorBackLeft.getCurrentPosition());
+            telemetry.addData("FrontLeft Position", motorFrontLeft.getCurrentPosition());
+            telemetry.addData("BackRight Position", motorBackRight.getCurrentPosition());
+            telemetry.addData("FrontRight Target", motorFrontRight.getTargetPosition());
+            telemetry.addData("BackLeft Target", motorBackLeft.getTargetPosition());
+            telemetry.addData("FrontLeft Target", motorFrontLeft.getTargetPosition());
+            telemetry.addData("BackRight Target", motorBackRight.getTargetPosition());
+            telemetry.update();
+        }
 
-    public void rotate(char direction, double angle, double motorPower){
-        imu.resetYaw();
-        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
-        DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
-        DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
-        DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
-        
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        
-        angle = angle-7.5;
-        
-        if(direction == 'R'){
-            while (yaw >= -angle){
-                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                motorFrontLeft.setPower(motorPower);
-                motorBackLeft.setPower(motorPower);
-                motorFrontRight.setPower(-motorPower);
-                motorBackRight.setPower(-motorPower);
-                telemetry.addData("yaw", yaw);
-                telemetry.update();
-            } 
-        }
-        
-        if(direction == 'L'){
-            while (yaw <= angle){
-                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                motorFrontLeft.setPower(-motorPower);
-                motorBackLeft.setPower(-motorPower);
-                motorFrontRight.setPower(motorPower);
-                motorBackRight.setPower(motorPower);
-                telemetry.addData("yaw", yaw);
-                telemetry.update();
-            } 
-        }
-        
+        // Stop motors
         motorFrontLeft.setPower(0);
         motorBackLeft.setPower(0);
         motorFrontRight.setPower(0);
         motorBackRight.setPower(0);
+
+        motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        // Set motors back to using encoders
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        sleep(500);
+    }
+
+    public void Rotate(char direction, double angle, double motorPower){
+        imu.resetYaw();
+        yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
+            DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
+            DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
+            DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+
+            motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+            motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+            motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+            motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+
+            angle = (angle - 7.5) * 1; // Tuning 1 if needed
+
+            if (direction == 'R') {
+                while (yaw >= -angle) {
+                    yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                    motorFrontLeft.setPower(-motorPower);
+                    motorBackLeft.setPower(-motorPower);
+                    motorFrontRight.setPower(motorPower);
+                    motorBackRight.setPower(motorPower);
+                    telemetry.addData("yaw", yaw);
+                    telemetry.update();
+                }
+            }
+
+            if (direction == 'L') {
+                while (yaw <= angle) {
+                    yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                    motorFrontLeft.setPower(motorPower);
+                    motorBackLeft.setPower(motorPower);
+                    motorFrontRight.setPower(-motorPower);
+                    motorBackRight.setPower(-motorPower);
+                    telemetry.addData("yaw", yaw);
+                    telemetry.update();
+                }
+            }
+
+            motorFrontLeft.setPower(0);
+            motorBackLeft.setPower(0);
+            motorFrontRight.setPower(0);
+            motorBackRight.setPower(0);
+            telemetry.addData("Encoder Value", motorFrontRight.getCurrentPosition());
+            telemetry.addData("Target Value", motorFrontRight.getTargetPosition());
+            telemetry.update();
+            sleep(500);
     }
 }
