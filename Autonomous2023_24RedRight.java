@@ -28,9 +28,9 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
     private DcMotor motorBackRight;
+
     private Servo pixelDropper;
     private Servo backdrop;
-    
 
     private static final double MOVE_SPEED = 0.25;
     private static final double MAX_LIFT_POSITION = 0;
@@ -38,10 +38,10 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     private static final double MAX_ARM_POSITION = 750.0;
     private static final double MIN_ARM_POSITION = -10000.0;
     //Min and Max of dumpy (servo) are scaled between the right most (max) and left most (min) positions
-    private static final double MAX_PIXELDROPPER_POSITION = 1.0;
+    private static final double MAX_PIXELDROPPER_POSITION = 0.85;
     private static final double MIN_PIXELDROPPER_POSITION = 0.65; 
     private static final double INIT_BACKDROP_POSITION = 1;
-    private static final double READY_BACKDROP_POSITION = 0.4;
+    private static final double READY_BACKDROP_POSITION = 0.6;
     private static final double FINISH_BACKDROP_POSITION = 0;
     private static final double MIDDLE_LINE = 250.0;
     private double x;
@@ -82,15 +82,14 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        pixelDropper.setPosition(1.0);
-
         imu.resetYaw();
 
         initTfod();
         waitForStart();
 
         if (opModeIsActive()) {
-
+            
+            pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
             backdrop.setPosition(FINISH_BACKDROP_POSITION);
             yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
@@ -101,15 +100,17 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                     if (objectNum == 1 && x < MIDDLE_LINE) {
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
                         //*drop pixel*
-                        pixelDropper.setPosition(MAX_PIXELDROPPER_POSITION);
+                        pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .25);
                         Rotate('R', 90, 0.5);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
                         //*flip forward backdrop servo*
+                        backdrop.setPosition(READY_BACKDROP_POSITION);
                         //*Align with center april tag*
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         //*flip down backdrop servo*
+                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
                         Rotate('R', 90, 0.5);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
                         //**End of program**
@@ -125,10 +126,12 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                         Rotate('R', 180, MOVE_SPEED);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
                         //*flip forward backdrop servo*
+                        backdrop.setPosition(READY_BACKDROP_POSITION);
                         //Align with left april tag
                         mecanumMoveBotEncoders(.1, 0, 0,.3);
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         //*flip down backdrop servo*
+                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
                         Rotate('R', 90, MOVE_SPEED);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
                         //**End of program*
@@ -146,10 +149,12 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         Rotate('R', 90, 0.5);
                         //*flip forward backdrop servo*
+                        backdrop.setPosition(READY_BACKDROP_POSITION);
                         //*Align with right april tag*
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.3);
                         mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                         //*flip down backdrop servo*
+                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
                         Rotate('R', 90, 0.5);
                         mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
                         //**End of program**
