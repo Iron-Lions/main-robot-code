@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -17,6 +18,8 @@ public class MotorTest extends LinearOpMode{
     private DcMotor motorBackLeft;
     private DcMotor motorBackRight;
     private DcMotor motorFrontRight;
+    private Servo pixelDropper;
+    private Servo backdrop;
     private IMU imu;
     private static final double MOVE_SPEED = 0.25;
     private double yaw;
@@ -26,6 +29,8 @@ public class MotorTest extends LinearOpMode{
         motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
         motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
+        pixelDropper = hardwareMap.servo.get("pixel_dropper"); 
+        backdrop = hardwareMap.servo.get("backdrop");
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
@@ -42,21 +47,22 @@ public class MotorTest extends LinearOpMode{
     
         
         if (opModeIsActive()) {
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.65);
-                Rotate('L', 90, MOVE_SPEED);
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
+                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
                 //*drop pixel*
-                mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.1);
-                Rotate('R', 180, MOVE_SPEED);
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
+                pixelDropper.setPosition(0.85);
+                mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .25);
+                Rotate('R', 90, 0.5);
+                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
                 //*flip forward backdrop servo*
-                //Align with left april tag
-                mecanumMoveBotEncoders(.1, 0, 0,.3);
+                backdrop.setPosition(0.4);
+                //*Align with center april tag*
+                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
                 mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                 //*flip down backdrop servo*
-                Rotate('R', 90, MOVE_SPEED);
-                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
-                //**End of program*
+                backdrop.setPosition(0.0);
+                Rotate('R', 90, 0.5);
+                mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
+                //**End of program**
         }
 
     }
