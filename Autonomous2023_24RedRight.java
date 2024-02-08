@@ -33,11 +33,6 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     private Servo backdrop;
 
     private static final double MOVE_SPEED = 0.25;
-    private static final double MAX_LIFT_POSITION = 0;
-    private static final double MIN_LIFT_POSITION = -3100.0;
-    private static final double MAX_ARM_POSITION = 750.0;
-    private static final double MIN_ARM_POSITION = -10000.0;
-    //Min and Max of dumpy (servo) are scaled between the right most (max) and left most (min) positions
     private static final double MAX_PIXELDROPPER_POSITION = 0.85;
     private static final double MIN_PIXELDROPPER_POSITION = 0.65;
     private static final double INIT_BACKDROP_POSITION = 1;
@@ -58,10 +53,6 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     };
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
-
-    private boolean isLeft = false;
-    private boolean isRight = false;
-    private boolean isMiddle = false;
 
     private ElapsedTime runTime = new ElapsedTime();
 
@@ -118,7 +109,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                     //**End of program**
 
                 }
-                if (objectNum == 1 && x < MIDDLE_LINE) { // Left Movement
+                else if (objectNum == 1 && x < MIDDLE_LINE) { // Left Movement
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.65);
                     Rotate('L', 90, MOVE_SPEED);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
@@ -139,7 +130,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                     //**End of program*
 
                 }
-                if (objectNum == 0) { // Right
+                else if (objectNum == 0) { // Right
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
                     Rotate('R', 90, 0.5);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
