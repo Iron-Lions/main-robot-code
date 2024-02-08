@@ -39,7 +39,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     private static final double MIN_ARM_POSITION = -10000.0;
     //Min and Max of dumpy (servo) are scaled between the right most (max) and left most (min) positions
     private static final double MAX_PIXELDROPPER_POSITION = 0.85;
-    private static final double MIN_PIXELDROPPER_POSITION = 0.65; 
+    private static final double MIN_PIXELDROPPER_POSITION = 0.65;
     private static final double INIT_BACKDROP_POSITION = 1;
     private static final double READY_BACKDROP_POSITION = 0.6;
     private static final double FINISH_BACKDROP_POSITION = 0;
@@ -73,11 +73,11 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
 
-        pixelDropper = hardwareMap.servo.get("pixel_dropper"); 
+        pixelDropper = hardwareMap.servo.get("pixel_dropper");
         backdrop = hardwareMap.servo.get("backdrop");
         //pixelDropper.setPosition(MIN_DUMPY_POSITION);
         imu = hardwareMap.get(IMU.class, "imu");
-        
+
 
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -88,7 +88,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            
+
             pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
             backdrop.setPosition(FINISH_BACKDROP_POSITION);
             yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
@@ -97,69 +97,70 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
                 runTime.reset();
                 while (opModeIsActive() && runTime.milliseconds() <= 3000) {
                     telemetryTfod();
-                    if (objectNum == 1 && x < MIDDLE_LINE) {
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
-                        //*drop pixel*
-                        pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
-                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .25);
-                        Rotate('R', 90, 0.5);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
-                        //*flip forward backdrop servo*
-                        backdrop.setPosition(READY_BACKDROP_POSITION);
-                        //*Align with center april tag*
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
-                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                        //*flip down backdrop servo*
-                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
-                        Rotate('R', 90, 0.5);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
-                        //**End of program**
+                }
 
-                    }
-                    if (objectNum == 1 && x > MIDDLE_LINE) { // Left
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.65);
-                        Rotate('L', 90, MOVE_SPEED);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
-                        //*drop pixel*
-                        pixelDropper.setPosition(MAX_PIXELDROPPER_POSITION);
-                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.1);
-                        Rotate('R', 180, MOVE_SPEED);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
-                        //*flip forward backdrop servo*
-                        backdrop.setPosition(READY_BACKDROP_POSITION);
-                        //Align with left april tag
-                        mecanumMoveBotEncoders(.1, 0, 0,.3);
-                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                        //*flip down backdrop servo*
-                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
-                        Rotate('R', 90, MOVE_SPEED);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
-                        //**End of program*
+                if (objectNum == 1 && x > MIDDLE_LINE) { // Middle Movement
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
+                    //*drop pixel*
+                    pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .25);
+                    Rotate('R', 90, 0.5);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
+                    //*flip forward backdrop servo*
+                    backdrop.setPosition(READY_BACKDROP_POSITION);
+                    //*Align with center april tag*
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                    //*flip down backdrop servo*
+                    backdrop.setPosition(FINISH_BACKDROP_POSITION);
+                    Rotate('R', 90, 0.5);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
+                    //**End of program**
 
-                    }
-                    else { // Right
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
-                        Rotate('R', 90, 0.5);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
-                        Rotate('L', 90, 0.5);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.75);
-                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.25);
-                        //*drop pixel*
-                        pixelDropper.setPosition(MAX_PIXELDROPPER_POSITION);
-                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                        Rotate('R', 90, 0.5);
-                        //*flip forward backdrop servo*
-                        backdrop.setPosition(READY_BACKDROP_POSITION);
-                        //*Align with right april tag*
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.3);
-                        mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                        //*flip down backdrop servo*
-                        backdrop.setPosition(FINISH_BACKDROP_POSITION);
-                        Rotate('R', 90, 0.5);
-                        mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
-                        //**End of program**
+                }
+                if (objectNum == 1 && x < MIDDLE_LINE) { // Left Movement
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.65);
+                    Rotate('L', 90, MOVE_SPEED);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
+                    //*drop pixel*
+                    pixelDropper.setPosition(MAX_PIXELDROPPER_POSITION);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.1);
+                    Rotate('R', 180, MOVE_SPEED);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
+                    //*flip forward backdrop servo*
+                    backdrop.setPosition(READY_BACKDROP_POSITION);
+                    //Align with left april tag
+                    mecanumMoveBotEncoders(.1, 0, 0,.3);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                    //*flip down backdrop servo*
+                    backdrop.setPosition(FINISH_BACKDROP_POSITION);
+                    Rotate('R', 90, MOVE_SPEED);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
+                    //**End of program*
 
-                    }
+                }
+                if (objectNum == 0) { // Right
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
+                    Rotate('R', 90, 0.5);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
+                    Rotate('L', 90, 0.5);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.75);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.25);
+                    //*drop pixel*
+                    pixelDropper.setPosition(MAX_PIXELDROPPER_POSITION);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                    Rotate('R', 90, 0.5);
+                    //*flip forward backdrop servo*
+                    backdrop.setPosition(READY_BACKDROP_POSITION);
+                    //*Align with right april tag*
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.3);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+                    //*flip down backdrop servo*
+                    backdrop.setPosition(FINISH_BACKDROP_POSITION);
+                    Rotate('R', 90, 0.5);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
+                    //**End of program**
+
                 }
             }
         }
@@ -249,7 +250,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         }
 
     }
-    
+
     //Distance is in meters
     private void mecanumMoveBotEncoders(double FB_translation, double LR_translation, double rotation, double distance) {
         // Calculate individual motor powers
@@ -265,7 +266,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         int BR_direction = 0;
 
         distance = distance * 1000; //meters to mm
-        
+
         distance = distance * 0.97035; // Tune ratio
 
         double numberOfTicks = (distance/(96*Math.PI))*537.7;
@@ -355,49 +356,49 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     public void Rotate(char direction, double angle, double motorPower){
         imu.resetYaw();
         yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-            DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
-            DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
-            DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
-            DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
+        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front_Left");
+        DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
+        DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
+        DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
 
-            motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
 
-            angle = (angle - 7.5) * 1; // Tuning 1 if needed
+        angle = (angle - 7.5) * 1; // Tuning 1 if needed
 
-            if (direction == 'R') {
-                while (yaw >= -angle) {
-                    yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                    motorFrontLeft.setPower(-motorPower);
-                    motorBackLeft.setPower(-motorPower);
-                    motorFrontRight.setPower(motorPower);
-                    motorBackRight.setPower(motorPower);
-                    telemetry.addData("yaw", yaw);
-                    telemetry.update();
-                }
+        if (direction == 'R') {
+            while (yaw >= -angle) {
+                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                motorFrontLeft.setPower(-motorPower);
+                motorBackLeft.setPower(-motorPower);
+                motorFrontRight.setPower(motorPower);
+                motorBackRight.setPower(motorPower);
+                telemetry.addData("yaw", yaw);
+                telemetry.update();
             }
+        }
 
-            if (direction == 'L') {
-                while (yaw <= angle) {
-                    yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                    motorFrontLeft.setPower(motorPower);
-                    motorBackLeft.setPower(motorPower);
-                    motorFrontRight.setPower(-motorPower);
-                    motorBackRight.setPower(-motorPower);
-                    telemetry.addData("yaw", yaw);
-                    telemetry.update();
-                }
+        if (direction == 'L') {
+            while (yaw <= angle) {
+                yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                motorFrontLeft.setPower(motorPower);
+                motorBackLeft.setPower(motorPower);
+                motorFrontRight.setPower(-motorPower);
+                motorBackRight.setPower(-motorPower);
+                telemetry.addData("yaw", yaw);
+                telemetry.update();
             }
+        }
 
-            motorFrontLeft.setPower(0);
-            motorBackLeft.setPower(0);
-            motorFrontRight.setPower(0);
-            motorBackRight.setPower(0);
-            telemetry.addData("Encoder Value", motorFrontRight.getCurrentPosition());
-            telemetry.addData("Target Value", motorFrontRight.getTargetPosition());
-            telemetry.update();
-            sleep(500);
+        motorFrontLeft.setPower(0);
+        motorBackLeft.setPower(0);
+        motorFrontRight.setPower(0);
+        motorBackRight.setPower(0);
+        telemetry.addData("Encoder Value", motorFrontRight.getCurrentPosition());
+        telemetry.addData("Target Value", motorFrontRight.getTargetPosition());
+        telemetry.update();
+        sleep(500);
     }
 }
