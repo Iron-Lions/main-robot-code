@@ -28,17 +28,22 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
     private DcMotor motorFrontLeft;
     private DcMotor motorBackLeft;
     private DcMotor motorBackRight;
+    private DcMotor lift;
+    private DcMotor lift4;
 
     private Servo pixelDropper;
-    private Servo backdrop;
+    private Servo arm;
+    private Servo bucket;
+    private Servo pixel_release;
 
-    private static final double MOVE_SPEED = 0.25;
-    private static final double MAX_PIXELDROPPER_POSITION = 0.85;
-    private static final double MIN_PIXELDROPPER_POSITION = 0.65;
-    private static final double INIT_BACKDROP_POSITION = 1;
-    private static final double READY_BACKDROP_POSITION = 0.6;
-    private static final double FINISH_BACKDROP_POSITION = 0;
-    private static final double MIDDLE_LINE = 250.0;
+    private static final double MOVE_SPEED = 0.3;
+    private static final double MAX_ARM_POSITION = 0;
+    private static final double MIN_ARM_POSITION = 0.6;
+    private static final double MAX_BUCKET_POSITION = 0.4;
+    private static final double MIN_BUCKET_POSITION = 0.52;
+    private static final double MAX_PIXEL_RELEASE_POSITION = 0.7;
+    private static final double MIN_PIXEL_RELEASE_POSITION = 0.3;
+    private static final double MIDDLE_LINE = 300.0;
     private double x;
     private int objectNum = 0;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -46,7 +51,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
 
     // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
     // this is used when uploading models directly to the RC using the model upload interface.
-    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/TeamPropRed.tflite";
+    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/TeamPropRedRevised.tflite";
     // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
             "Red Team Prop",
@@ -65,13 +70,27 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
 
         pixelDropper = hardwareMap.servo.get("pixel_dropper");
-        backdrop = hardwareMap.servo.get("backdrop");
-        //pixelDropper.setPosition(MIN_DUMPY_POSITION);
+        bucket = hardwareMap.servo.get("bucket");
+        arm = hardwareMap.servo.get("arm");
+        lift = hardwareMap.dcMotor.get("lift_main");
+        lift4 = hardwareMap.dcMotor.get("lift_mirrored");
+        pixel_release = hardwareMap.servo.get("pixel_release");
         imu = hardwareMap.get(IMU.class, "imu");
 
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        arm.setPosition(MIN_ARM_POSITION);
+        bucket.setPosition(MIN_BUCKET_POSITION);
 
         imu.resetYaw();
 
@@ -79,79 +98,156 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-
-            pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
-            backdrop.setPosition(FINISH_BACKDROP_POSITION);
             yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
-            if (opModeIsActive() && objectNum == 0) { // Check Middle
+            if (opModeIsActive() && objectNum == 0) {
                 runTime.reset();
                 while (opModeIsActive() && runTime.milliseconds() <= 3000) {
                     telemetryTfod();
                 }
 
                 if (objectNum == 1 && x > MIDDLE_LINE) { // Middle Movement
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .7);
                     //*drop pixel*
-                    pixelDropper.setPosition(MIN_PIXELDROPPER_POSITION);
-                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .25);
-                    Rotate('R', 90, 0.5);
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .75);
-                    //*flip forward backdrop servo*
-                    backdrop.setPosition(READY_BACKDROP_POSITION);
-                    //*Align with center april tag*
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
+                    pixelDropper.setPosition(0); // Release Pixel
+                    sleep(1000);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .05);
+                    Rotate('R', 90, MOVE_SPEED);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
+
+                    //Lift the lift
+                    lift.setPower(1);
+                    lift4.setPower(1);
+                    sleep(1000);
+                    lift.setPower(0);
+                    lift4.setPower(0);
+
+                    // swing arm out
+                    arm.setPosition(MAX_ARM_POSITION);
+                    bucket.setPosition(MAX_BUCKET_POSITION);
+
+                    mecanumMoveBotEncoders(.1, 0, 0, .2);
+
+                    //drop the pixel
+                    pixel_release.setPosition(MAX_PIXEL_RELEASE_POSITION);
+                    sleep(1000);
+                    pixel_release.setPosition(MIN_PIXEL_RELEASE_POSITION);
+                    sleep(1000);
+
                     mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                    //*flip down backdrop servo*
-                    backdrop.setPosition(FINISH_BACKDROP_POSITION);
-                    Rotate('R', 90, 0.5);
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
+
+                    //swing arm in
+                    arm.setPosition(MIN_ARM_POSITION);
+                    bucket.setPosition(MIN_BUCKET_POSITION);
+
+                    // lower lift
+                    lift.setPower(-0.75);
+                    lift4.setPower(-0.75);
+                    sleep(1500);
+                    lift.setPower(0);
+                    lift4.setPower(0);
+
+                    // parking
+                    mecanumMoveBotEncoders(0, -MOVE_SPEED, 0, .6);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
                     //**End of program**
 
                 }
                 else if (objectNum == 1 && x < MIDDLE_LINE) { // Left Movement
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.65);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .7);
                     Rotate('L', 90, MOVE_SPEED);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
                     //*drop pixel*
-                    pixelDropper.setPosition(MAX_PIXELDROPPER_POSITION);
-                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.1);
+                    pixelDropper.setPosition(0); // Release Pixel
+                    sleep(1000);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                     Rotate('R', 180, MOVE_SPEED);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
-                    //*flip forward backdrop servo*
-                    backdrop.setPosition(READY_BACKDROP_POSITION);
-                    //Align with left april tag
-                    mecanumMoveBotEncoders(.1, 0, 0,.3);
-                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                    //*flip down backdrop servo*
-                    backdrop.setPosition(FINISH_BACKDROP_POSITION);
-                    Rotate('R', 90, MOVE_SPEED);
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
-                    //**End of program*
+                    //Lift the lift
+                    lift.setPower(1);
+                    lift4.setPower(1);
+                    sleep(1000);
+                    lift.setPower(0);
+                    lift4.setPower(0);
 
-                }
-                else if (objectNum == 0) { // Right
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
-                    Rotate('R', 90, 0.5);
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .25);
-                    Rotate('L', 90, 0.5);
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.75);
-                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0,.25);
-                    //*drop pixel*
-                    pixelDropper.setPosition(MAX_PIXELDROPPER_POSITION);
+                    // swing arm out
+                    arm.setPosition(MAX_ARM_POSITION);
+                    bucket.setPosition(MAX_BUCKET_POSITION);
+
+                    mecanumMoveBotEncoders(.1, 0, 0, .2);
+
+                    //drop the pixel
+                    pixel_release.setPosition(MAX_PIXEL_RELEASE_POSITION);
+                    sleep(1000);
+                    pixel_release.setPosition(MIN_PIXEL_RELEASE_POSITION);
+                    sleep(1000);
+
                     mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                    Rotate('R', 90, 0.5);
-                    //*flip forward backdrop servo*
-                    backdrop.setPosition(READY_BACKDROP_POSITION);
-                    //*Align with right april tag*
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0,.3);
-                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-                    //*flip down backdrop servo*
-                    backdrop.setPosition(FINISH_BACKDROP_POSITION);
-                    Rotate('R', 90, 0.5);
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .8);
+
+                    //swing arm in
+                    arm.setPosition(MIN_ARM_POSITION);
+                    bucket.setPosition(MIN_BUCKET_POSITION);
+
+                    // lower lift
+                    lift.setPower(-0.75);
+                    lift4.setPower(-0.75);
+                    sleep(1500);
+                    lift.setPower(0);
+                    lift4.setPower(0);
+
+                    // parking
+                    mecanumMoveBotEncoders(0, -MOVE_SPEED, 0, .6);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
                     //**End of program**
 
+                }
+                else if (objectNum == 0) { // Right Movement
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .4);
+                    Rotate('L', 90, MOVE_SPEED);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .3);
+                    mecanumMoveBotEncoders(0, -MOVE_SPEED, 0, .4);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .09);
+                    //*drop pixel*
+                    pixelDropper.setPosition(0); // Release Pixel
+                    sleep(1000);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .25);
+                    Rotate('L', 180, MOVE_SPEED);
+                    //Lift the lift
+                    lift.setPower(1);
+                    lift4.setPower(1);
+                    sleep(1000);
+                    lift.setPower(0);
+                    lift4.setPower(0);
+
+                    // swing arm out
+                    arm.setPosition(MAX_ARM_POSITION);
+                    bucket.setPosition(MAX_BUCKET_POSITION);
+
+                    mecanumMoveBotEncoders(.1, 0, 0, .2);
+
+                    //drop the pixel
+                    pixel_release.setPosition(MAX_PIXEL_RELEASE_POSITION);
+                    sleep(1000);
+                    pixel_release.setPosition(MIN_PIXEL_RELEASE_POSITION);
+                    sleep(1000);
+
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
+
+                    //swing arm in
+                    arm.setPosition(MIN_ARM_POSITION);
+                    bucket.setPosition(MIN_BUCKET_POSITION);
+
+                    // lower lift
+                    lift.setPower(-0.75);
+                    lift4.setPower(-0.75);
+                    sleep(1500);
+                    lift.setPower(0);
+                    lift4.setPower(0);
+
+                    // parking
+                    mecanumMoveBotEncoders(0, -MOVE_SPEED, 0, .6);
+                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
+                    //**End of program**
                 }
             }
         }
@@ -215,7 +311,7 @@ public class Autonomous2023_24RedRight extends LinearOpMode {
         visionPortal = builder.build();
 
         // Set confidence threshold for TFOD recognitions, at any time.
-        tfod.setMinResultConfidence(0.8f);
+        tfod.setMinResultConfidence(0.7f);
 
         // Disable or re-enable the TFOD processor at any time.
         //visionPortal.setProcessorEnabled(tfod, true);
