@@ -50,7 +50,6 @@ public class DriverOperated2024 extends LinearOpMode {
     private Servo arm;
     private DcMotor intake;
     private Servo airplane;
-    private Servo dumpy_4; //This is the pixel dropper
     private Servo backdrop;
     private Servo bucket;
     private Servo pixel_release;
@@ -104,8 +103,8 @@ public class DriverOperated2024 extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-        RevHubOrientationOnRobot.LogoFacingDirection.UP,
-        RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
         waitForStart();
@@ -134,37 +133,6 @@ public class DriverOperated2024 extends LinearOpMode {
                 lift4.setPower(liftPower);;
             }
             
-            /*if(SERVO_GAMEPAD.left_stick_y > 0.4 && armPosition < 1){
-                armPosition += 0.01;
-            }
-            if(SERVO_GAMEPAD.left_stick_y < -0.4 && armPosition > 0){
-                armPosition -= 0.01;
-            }
-            arm.setPosition(armPosition);
-            
-            if(SERVO_GAMEPAD.right_stick_y > 0.4 && bucketPosition < 1){
-                bucketPosition += 0.01;
-                bucket.setPosition(bucketPosition);
-            }
-            if(SERVO_GAMEPAD.right_stick_y < -0.4 && bucketPosition > 0){
-                bucketPosition -= 0.01;
-                bucket.setPosition(bucketPosition);
-            }
-            bucket.setPosition(bucketPosition);
-            */
-            /*if(SERVO_GAMEPAD.right_stick_y > 0.4 && pixel_releasePosition < 1){
-                pixel_releasePosition += 0.01;
-            }
-            if(SERVO_GAMEPAD.right_stick_y < -0.4 && pixel_releasePosition > 0){
-                pixel_releasePosition -= 0.01;
-            }
-            
-            bucket.setPosition(bucketPosition);
-            pixel_release.setPosition(pixel_releasePosition);*/
-            //You need to hold the bumpers to make it work
-            /*if(ARM_GAMEPAD.y){
-                pixel_dropper.setPosition(0.4);
-            }*/
             if(ARM_GAMEPAD.right_trigger>0.5){
                 pixel_release.setPosition(MAX_PIXEL_RELEASE_POSITION);
             }
@@ -190,38 +158,16 @@ public class DriverOperated2024 extends LinearOpMode {
             }
             //This fires the airplane if a is pressed
             if(SERVO_GAMEPAD.a){
-                airplane.setPosition(MAX_PLANE_POSITION); 
+                airplane.setPosition(MAX_PLANE_POSITION);
             }
-            /*
-            if(gamepad1.a){
-                backdrop.setPosition(INIT_BACKDROP_POSITION);
-            }
-            if(gamepad1.y){
-                backdrop.setPosition(READY_BACKDROP_POSITION);
-            }
-            if(gamepad1.b){
-                backdrop.setPosition(FINISH_BACKDROP_POSITION);
-            }
-            */
-            //if(gamepad1.rightstick)
-            //intakePower = check1 + check2;
-            //intake.setPower(intakePower);
-            //This is to print out telemetry later
-            //dumpy_4Position = dumpy_4.getPosition();
-            //Servo controls-can only move dumpy_4 to two locations
-            if(SERVO_GAMEPAD.left_trigger > 0.5){
-                //dumpy_4.setPosition(MAX_DUMPY_POSITION);
-            }
-            if(SERVO_GAMEPAD.right_trigger > 0.5){
-                //dumpy_4.setPosition(MIN_DUMPY_POSITION);
-            }
+
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
             // The equivalent button is start on Xbox-style controllers.
             if (DRIVE_GAMEPAD.start) {
                 imu.resetYaw();
             }
-            
+
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -258,6 +204,5 @@ public class DriverOperated2024 extends LinearOpMode {
             //telemetry.addData("dumpy_4 Position", dumpy_4Position);
             telemetry.update();
         }
-        }
     }
-
+}
