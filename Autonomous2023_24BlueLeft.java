@@ -32,6 +32,7 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
     private DcMotor lift4;
 
     private Servo pixelDropper;
+    private Servo backdrop;
     private Servo arm;
     private Servo bucket;
     private Servo pixel_release;
@@ -40,11 +41,13 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
     private static final double MOVE_SPEED = 0.3;
     private static final double MAX_ARM_POSITION = 0;
     private static final double MIN_ARM_POSITION = 0.6;
-    private static final double MAX_BUCKET_POSITION = 0.4;
+    private static final double MAX_BUCKET_POSITION = 0.5;
     private static final double MIN_BUCKET_POSITION = 0.52;
     private static final double MAX_PIXEL_RELEASE_POSITION = 0.7;
     private static final double MIN_PIXEL_RELEASE_POSITION = 0.3;
     private static final double MIDDLE_LINE = 300.0;
+    private static final double MAX_LIFT_POSITION = 4000.0;
+    private static final double MIN_LIFT_POSITION = 0.0;
     private double x;
     private int objectNum = 0;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -70,6 +73,7 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
         motorBackRight = hardwareMap.dcMotor.get("Back_Right");
 
         pixelDropper = hardwareMap.servo.get("pixel_dropper");
+        backdrop = hardwareMap.servo.get("backdrop");
         bucket = hardwareMap.servo.get("bucket");
         arm = hardwareMap.servo.get("arm");
         lift = hardwareMap.dcMotor.get("lift_main");
@@ -92,6 +96,7 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
 
         arm.setPosition(MIN_ARM_POSITION);
         bucket.setPosition(MIN_BUCKET_POSITION);
+        pixel_release.setPosition(MIN_PIXEL_RELEASE_POSITION);
 
         imu.resetYaw();
 
@@ -115,39 +120,39 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
                     mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .05);
                     Rotate('L', 90, MOVE_SPEED);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
-
+                    
                     //Lift the lift
                     lift.setPower(1);
                     lift4.setPower(1);
-                    sleep(1000);
+                    sleep(750);
                     lift.setPower(0);
                     lift4.setPower(0);
-
+                    
                     // swing arm out
                     arm.setPosition(MAX_ARM_POSITION);
                     bucket.setPosition(MAX_BUCKET_POSITION);
-
-                    mecanumMoveBotEncoders(.1, 0, 0, .2);
-
+                    
+                    mecanumMoveBotEncoders(.1, 0, 0, .4);
+                    
                     //drop the pixel
                     pixel_release.setPosition(MAX_PIXEL_RELEASE_POSITION);
                     sleep(1000);
                     pixel_release.setPosition(MIN_PIXEL_RELEASE_POSITION);
                     sleep(1000);
-
+                    
                     mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-
-                    //swing arm in
+                    
+                    //swing arm in 
                     arm.setPosition(MIN_ARM_POSITION);
                     bucket.setPosition(MIN_BUCKET_POSITION);
-
+                    
                     // lower lift
                     lift.setPower(-0.75);
                     lift4.setPower(-0.75);
                     sleep(1500);
                     lift.setPower(0);
                     lift4.setPower(0);
-
+                    
                     // parking
                     mecanumMoveBotEncoders(0, MOVE_SPEED, 0, .6);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
@@ -155,11 +160,12 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
 
                 }
                 else if (objectNum == 1 && x < MIDDLE_LINE) { // Left Movement
+                    mecanumMoveBotEncoders(0, MOVE_SPEED, 0, .1);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .4);
                     Rotate('R', 90, MOVE_SPEED);
                     mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .3);
                     mecanumMoveBotEncoders(0, MOVE_SPEED, 0, .4);
-                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .09);
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                     //*drop pixel*
                     pixelDropper.setPosition(0); // Release Pixel
                     sleep(1000);
@@ -168,35 +174,36 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
                     //Lift the lift
                     lift.setPower(1);
                     lift4.setPower(1);
-                    sleep(1000);
+                    sleep(750);
                     lift.setPower(0);
                     lift4.setPower(0);
-
+                    
                     // swing arm out
                     arm.setPosition(MAX_ARM_POSITION);
                     bucket.setPosition(MAX_BUCKET_POSITION);
-
-                    mecanumMoveBotEncoders(.1, 0, 0, .2);
-
+                    
+                    mecanumMoveBotEncoders(0, MOVE_SPEED, 0, .1);
+                    mecanumMoveBotEncoders(.1, 0, 0, .4);
+                    
                     //drop the pixel
                     pixel_release.setPosition(MAX_PIXEL_RELEASE_POSITION);
                     sleep(1000);
                     pixel_release.setPosition(MIN_PIXEL_RELEASE_POSITION);
                     sleep(1000);
-
-                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-
-                    //swing arm in
+                    
+                    mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .2);
+                    
+                    //swing arm in 
                     arm.setPosition(MIN_ARM_POSITION);
                     bucket.setPosition(MIN_BUCKET_POSITION);
-
+                    
                     // lower lift
                     lift.setPower(-0.75);
                     lift4.setPower(-0.75);
                     sleep(1500);
                     lift.setPower(0);
                     lift4.setPower(0);
-
+                    
                     // parking
                     mecanumMoveBotEncoders(0, MOVE_SPEED, 0, .6);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
@@ -206,45 +213,45 @@ public class Autonomous2023_24BlueLeft extends LinearOpMode {
                 else if (objectNum == 0){ // Right
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .7);
                     Rotate('R', 90, MOVE_SPEED);
-                    mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .1);
                     //*drop pixel*
                     pixelDropper.setPosition(0); // Release Pixel
                     sleep(1000);
                     mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
                     Rotate('L', 180, MOVE_SPEED);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .65);
-                    //Lift the lift
+                                        //Lift the lift
                     lift.setPower(1);
                     lift4.setPower(1);
-                    sleep(1000);
+                    sleep(750);
                     lift.setPower(0);
                     lift4.setPower(0);
-
+                    
                     // swing arm out
                     arm.setPosition(MAX_ARM_POSITION);
                     bucket.setPosition(MAX_BUCKET_POSITION);
-
-                    mecanumMoveBotEncoders(.1, 0, 0, .2);
-
+                    
+                    mecanumMoveBotEncoders(0, -MOVE_SPEED, 0, .1);
+                    mecanumMoveBotEncoders(.1, 0, 0, .4);
+                    
                     //drop the pixel
                     pixel_release.setPosition(MAX_PIXEL_RELEASE_POSITION);
                     sleep(1000);
                     pixel_release.setPosition(MIN_PIXEL_RELEASE_POSITION);
                     sleep(1000);
-
+                    
                     mecanumMoveBotEncoders(-MOVE_SPEED, 0, 0, .1);
-
-                    //swing arm in
+                    
+                    //swing arm in 
                     arm.setPosition(MIN_ARM_POSITION);
                     bucket.setPosition(MIN_BUCKET_POSITION);
-
+                    
                     // lower lift
                     lift.setPower(-0.75);
                     lift4.setPower(-0.75);
                     sleep(1500);
                     lift.setPower(0);
                     lift4.setPower(0);
-
+                    
                     // parking
                     mecanumMoveBotEncoders(0, MOVE_SPEED, 0, .6);
                     mecanumMoveBotEncoders(MOVE_SPEED, 0, 0, .3);
