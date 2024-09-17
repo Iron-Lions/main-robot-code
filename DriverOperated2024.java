@@ -130,7 +130,7 @@ public class DriverOperated2024 extends LinearOpMode {
             }
             else {
                 lift.setPower(liftPower);
-                lift4.setPower(liftPower);;
+                lift4.setPower(liftPower);
             }
             
             if(ARM_GAMEPAD.right_trigger>0.5){
