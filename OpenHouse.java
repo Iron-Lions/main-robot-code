@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.TeleOP;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,21 +16,28 @@ public class OpenHouse extends LinearOpMode {
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back_Left");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front_Right");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("Back_Right");
-
-        Servo shoulderL = /**/;
-        Servo shoulderR = /**/;
-        Servo elbow = /**/;
-        Servo wrist = /**/;
-
-        double servoMinValue = /**/;
-        double servoMaxValue = /**/;
+        
+        DcMotor lift = hardwareMap.dcMotor.get("Lift");
+        Servo shoulderL = hardwareMap.servo.get("Left_Shoulder");
+        Servo shoulderR = hardwareMap.servo.get("Right_Shoulder");
+        Servo wrist = hardwareMap.servo.get("Wrist");
+        //Servo fingers = /**/;
+        
+        //NOT FINAL!!!
+        double shoulderMinValue = 50;
+        double shoulderMaxValue = 100;
+        
+        double wristMinValue = 150;
+        double wristMaxValue = 100;
+        
+        double shoulderPos = 0;
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
         // reverse the left side instead.
         // See the note about this earlier on this page.
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
@@ -41,13 +49,14 @@ public class OpenHouse extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
 
             double shoulderMotion = gamepad2.left_stick_y;
+            shoulderPos += (shoulderMotion);
             double elbowMotion = gamepad2.right_stick_y;
-
+            
             if(gamepad2.a) {
-                wrist.setPosition(servoMaxValue);
+                wrist.setPosition(wristMaxValue);
             }
             if(gamepad2.b) {
-                wrist.setPosition(servoMinValue);
+                wrist.setPosition(wristMinValue);
             }
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio,
@@ -62,9 +71,14 @@ public class OpenHouse extends LinearOpMode {
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
-
-            shoulderLeft.setPosition(shoulderLeft.getCurrentPosition() + shoulderMotion);
-            shoulderRight.setPosition(shoulderRight.getCurrentPosition() - shoulderMotion);
+            
+            shoulderL.setPosition(shoulderPos);
+            shoulderR.setPosition(-shoulderPos);
+            
+            telemetry.addData("Left shoulder postion", shoulderL.getPosition());
+            telemetry.addData("Right shoulder postion", shoulderR.getPosition());
+            telemetry.addData("Wrist postion", wrist.getPosition());
+            telemetry.update();
         }
     }
 }
